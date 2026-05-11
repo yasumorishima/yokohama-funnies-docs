@@ -47,6 +47,12 @@ Google OAuth、 5 段階権限制御（admin / editor / member / viewer / 未ロ
 - スコアブック OCR (`baseball-scorebook-ocr`、 RPi5 ローカル): 紙のスコアブック → at_bats / pitching_logs に同期
 - スプレッドシート（既存）: 移行期間のみ並行運用
 
+## セキュリティ
+
+- **権限**: Supabase RLS で全 table 行レベル制御、 5 段階 role
+- **secret 検知**: gitleaks workflow が main push / PR / 手動実行で全履歴スキャン、 binary は SHA256 検証で取得（supply-chain 防御）
+- **env 規約**: `.env.production` は `NEXT_PUBLIC_*` のみ（client 公開前提値）、 service_role / DB password / admin token 系は GitHub Actions secrets で管理
+
 ## ステータス
 
 着手: 2026-05-10。 minami-baseball-ob（横浜市立南高校 野球部 OB 会サイト）を template として、 OB 専用機能を全削除し草野球チーム向けに再設計中。
