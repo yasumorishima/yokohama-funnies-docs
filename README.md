@@ -6,7 +6,7 @@
 
 ## サイトについて
 
-- **本番**: https://yokohama-funnies.vercel.app/ （準備中）
+- **本番**: https://yokohama-funnies.vercel.app/ （公開済）
 - **対象**: 横浜ファニーズのメンバー向け
 - **目的**: 試合・練習・成績・出欠の一元管理
 
@@ -47,6 +47,13 @@ Google OAuth、 5 段階権限制御（admin / editor / member / viewer / 未ロ
 - スコアブック OCR (`baseball-scorebook-ocr`、 RPi5 ローカル): 紙のスコアブック → at_bats / pitching_logs に同期
 - スプレッドシート（既存）: 移行期間のみ並行運用
 
+## 視覚デザイン
+
+- **フォント**: Zen Maru Gothic (Japanese 丸ゴシック) + Fredoka (英字)
+- **配色**: navy `#1e3a8a` (チームカラー) + orange `#ea580c` (アクセント) + warm cream `#fff7ed` (背景) + pastel yellow (セクション交互)
+- **レイアウト**: Photo Magazine スタイル長スクロール。 全幅 hero (`h-[85vh]`) + bottom-aligned 巨大タイトル、 editorial `№ 01-05` セクションラベル、 大型 Card (`rounded-3xl` + ソフト影)
+- **トップ構成**: Hero → 横浜スタジアム 3 日天気 → 今日のひとこと (AI) → ABOUT US → MOMENTS (写真) → NEWS → UP NEXT (Google Calendar 風 月間ビュー) → RECORD
+
 ## セキュリティ
 
 - **権限**: Supabase RLS で全 table 行レベル制御、 5 段階 role
@@ -55,4 +62,4 @@ Google OAuth、 5 段階権限制御（admin / editor / member / viewer / 未ロ
 
 ## ステータス
 
-着手: 2026-05-10。 minami-baseball-ob（横浜市立南高校 野球部 OB 会サイト）を template として、 OB 専用機能を全削除し草野球チーム向けに再設計中。
+着手: 2026-05-10、 公開: 2026-05-11 (Vercel Hobby plan)。 minami-baseball-ob（横浜市立南高校 野球部 OB 会サイト）を template として、 OB 専用機能を全削除し草野球チーム向けに再設計中。 試合スケジュール・選手名簿・出欠・成績集計を順次実装中。
