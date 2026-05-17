@@ -26,7 +26,7 @@
 - 出欠管理
 - 写真ギャラリー
 - お知らせ・会員専用投稿
-- 球場の天気予報
+- 球場の天気予報 (Open-Meteo API、 WBGT 当日 hourly ピーク判定、 横浜スタジアム 先頭 + デフォルト展開、 home からの anchor link で自動展開)
 
 ## DB スキーマ
 
@@ -54,7 +54,7 @@ Google OAuth、 5 段階権限制御（admin / editor / member / viewer / 未ロ
 - **フォント**: Zen Maru Gothic (Japanese 丸ゴシック) + Fredoka (英字)
 - **配色**: navy `#1e3a8a` (チームカラー) + orange `#ea580c` (アクセント) + warm cream `#fff7ed` (背景) + pastel yellow (セクション交互)
 - **レイアウト**: Photo Magazine スタイル長スクロール。 全幅 hero (`h-[85vh]`) + bottom-aligned 巨大タイトル、 editorial `№ 01-05` セクションラベル、 大型 Card (`rounded-3xl` + ソフト影)
-- **トップ構成**: Hero → 横浜スタジアム 3 日天気 → 今日のひとこと (AI) → ABOUT US → MOMENTS (写真) → NEWS → UP NEXT (Google Calendar 風 月間ビュー) → RECORD
+- **トップ構成**: Hero → 横浜スタジアム 3 日天気 (M/D + 曜日、 クリックで /weather#横浜スタジアム へ自動展開) → 今日のひとこと (AI) → ABOUT US → MOMENTS (写真) → NEWS → UP NEXT (Google Calendar 風 月間ビュー) → RECORD
 
 ## セキュリティ
 
