@@ -4,7 +4,7 @@
 
 サイト本体は private リポ（https://github.com/yasumorishima/yokohama-funnies）。
 
-公開 cron (warm-weather): [yokohama-funnies-public-cron](https://github.com/yasumorishima/yokohama-funnies-public-cron) （ubuntu-latest 無料枠で `/weather` ISR cache を warm、 RPi5 outage 影響圏外）。
+公開 cron: [yokohama-funnies-public-cron](https://github.com/yasumorishima/yokohama-funnies-public-cron) （ubuntu-latest 無料枠で `/weather` ISR cache warm + 週次 `/schedule` SSR fire で Supabase auto-pause 回避、 anon key 不要、 RPi5 outage 影響圏外）。
 
 ## サイトについて
 
