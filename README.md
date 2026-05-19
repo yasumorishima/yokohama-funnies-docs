@@ -27,6 +27,7 @@
 - 写真ギャラリー
 - お知らせ・会員専用投稿
 - 球場の天気予報 (Open-Meteo API、 WBGT 当日 hourly ピーク判定、 横浜スタジアム 先頭 + デフォルト展開、 降水量 mm 表示 「累計 N.Nmm」 (日別) + 毎時 mm (時間帯別)、 雨アイコン 4 段階 小雨/中雨/大雨/暴風雨 を mm で判定)
+- ホーム CONTENTS ナビバンド (5 色 card-style + 横スライド snap で 5 セクションへ即ジャンプ、 hint label 2 段表示)
 
 ## DB スキーマ
 
@@ -54,7 +55,7 @@ Google OAuth、 5 段階権限制御（admin / editor / member / viewer / 未ロ
 - **フォント**: Zen Maru Gothic (Japanese 丸ゴシック) + Fredoka (英字)
 - **配色**: navy `#1e3a8a` (チームカラー) + orange `#ea580c` (アクセント) + warm cream `#fff7ed` (背景) + pastel yellow (セクション交互)
 - **レイアウト**: Photo Magazine スタイル長スクロール。 全幅 hero (`h-[85vh]`) + bottom-aligned 巨大タイトル、 editorial `№ 01-05` セクションラベル、 大型 Card (`rounded-3xl` + ソフト影)
-- **トップ構成**: Hero → 横浜スタジアム 3 日天気 (M/D + 曜日 + 降水% + 累計 N.Nmm + 雨強度別アイコン、 クリックで /weather に遷移し横浜スタジアムが先頭で自動展開) → ABOUT US → MOMENTS (写真) → NEWS → UP NEXT (Google Calendar 風 月間ビュー) → RECORD
+- **トップ構成**: Hero → CONTENTS ナビバンド (5 色 card-style + 横スライド snap) → 横浜スタジアム 3 日天気 (M/D + 曜日 + 降水% + 累計 N.Nmm + 雨強度別アイコン、 クリックで /weather に遷移し横浜スタジアムが先頭で自動展開) → チームの一言 → ABOUT US → MOMENTS (写真) → NEWS → UP NEXT (Google Calendar 風 月間ビュー) → RECORD
 
 ## セキュリティ
 
