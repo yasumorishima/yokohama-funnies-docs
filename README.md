@@ -28,6 +28,8 @@
 - お知らせ・会員専用投稿
 - 球場の天気予報 (Open-Meteo API、 WBGT 当日 hourly ピーク判定、 横浜スタジアム 先頭 + デフォルト展開、 降水量 mm 表示 「累計 N.Nmm」 (日別) + 毎時 mm (時間帯別)、 雨アイコン 4 段階 小雨/中雨/大雨/暴風雨 を mm で判定)
 - ホーム CONTENTS ナビバンド (5 色 card-style + 横スライド snap で 5 セクションへ即ジャンプ、 hint label 2 段表示)
+- スコアブック viewer (会員以上、 試合詳細 `/results/[id]` page で画像 inline 閲覧 + 監督コメント本文 inline、 別 page `/scorebooks/[result_id]` も残置、 editor は同 page で 90°/180° step 回転 + 画像クリックで原寸別タブ拡大、 sharp 経由 download + rotate + upsert)
+- 監督コメント (`/results/[id]` 試合詳細に会員限定で本文表示、 editor のみ投稿/編集 link、 1 試合 1 件、 履歴 trigger 付き)
 
 ## DB スキーマ
 
