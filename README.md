@@ -27,6 +27,7 @@
 - 写真ギャラリー
 - お知らせ・会員専用投稿 (2 カテゴリ: 会計記録 / 連絡事項)
 - 会員申請フォーム → admin が `/admin/roles` で承認 (新規 OAuth signup で trigger が viewer 自動付与、 admin が member/editor 昇格)
+- フィードバックフォーム `/feedback` (Google ログイン要、 GitHub App `yokohama-funnies-bot` 経由で private repo に issue 自動起票、 運営が GitHub 上で管理)
 - 球場の天気予報 (Open-Meteo API、 WBGT 当日 hourly ピーク判定、 横浜スタジアム 先頭 + デフォルト展開、 降水量 mm 表示 「累計 N.Nmm」 (日別) + 毎時 mm (時間帯別)、 雨アイコン 4 段階 小雨/中雨/大雨/暴風雨 を mm で判定)
 - ホーム CONTENTS ナビバンド (5 色 card-style + 横スライド snap で 5 セクションへ即ジャンプ、 hint label 2 段表示)
 - スコアブック viewer (会員以上、 試合詳細 `/results/[id]` page で画像 inline 閲覧 + 監督コメント本文 inline、 別 page `/scorebooks/[result_id]` も残置、 editor は同 page で 90°/180° step 回転 + 画像クリックで原寸別タブ拡大、 sharp 経由 download + rotate + upsert)
@@ -68,4 +69,4 @@ Google OAuth、 5 段階権限制御（admin / editor / member / viewer / 未ロ
 
 ## ステータス
 
-着手: 2026-05-10、 公開: 2026-05-11 (Vercel Hobby plan)。 minami-baseball-ob（横浜市立南高校 野球部 OB 会サイト）を template として、 OB 専用機能を全削除し草野球チーム向けに再設計。 **2026-05-23 時点**で試合スケジュール / 試合結果 / 選手名簿 (23 名) / 試合別打撃 + 投手 DB / /stats page (打撃投手タブ + 年度フィルタ + sortable) / 会員専用投稿 / スコアブック inline 表示 + 90°/180° 回転 / 監督コメント / Open-Meteo 天気予報 + WBGT 全実装済。 Google OAuth は 2026 年 6 月開通予定。
+着手: 2026-05-10、 公開: 2026-05-11 (Vercel Hobby plan)。 minami-baseball-ob（横浜市立南高校 野球部 OB 会サイト）を template として、 OB 専用機能を全削除し草野球チーム向けに再設計。 **2026-05-23 時点**で試合スケジュール / 試合結果 / 選手名簿 (23 名) / 試合別打撃 + 投手 DB / /stats page (打撃投手タブ + 年度フィルタ + sortable) / 会員専用投稿 / スコアブック inline 表示 + 90°/180° 回転 / 監督コメント / Open-Meteo 天気予報 + WBGT 全実装済。 Google OAuth は 2026 年 6 月開通予定。 フィードバック窓口は GitHub App 経由 private repo issue 化で 2026-05-23 から稼働。
