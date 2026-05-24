@@ -34,12 +34,15 @@
 - 監督コメント (`/results/[id]` 試合詳細に会員限定で本文表示、 editor のみ投稿/編集 link、 1 試合 1 件、 履歴 trigger 付き)
 - 試合別成績手動入力 (`/edit/game-stats` hub + `/edit/game-stats/[result_id]` 入力ページ、 editor+ 限定、 上半分 scorebook 画像表示 + 下半分 打撃/投手 タブ + 選手 picker + inline input + bulk UPSERT、 mobile (≤640px) は 1 選手 1 card、 入力済試合は /results/[id] の inline 成績で member+ に表示、 助っ人選手は名簿に先行追加してから picker で選択)
 - 助っ人選手 (`players.is_guest BOOLEAN`、 名簿 form の checkbox、 ON で 背番号 input disable + jersey_number=NULL 強制、 /stats 累計から除外、 選手一覧 末尾 group、 試合別 inline 成績の 背番号 欄に「助っ人」 表示)
+- 選手ごと 写真 + コメント (`players.photo_path` 列追加 [2026-05-24]、 既存 `notes` 列をコメント用に再利用、 /members-only/players edit form に写真 upload + 削除 button + コメント textarea、 list page で 円形 thumbnail + コメント 2 行 truncate 表示)
+- ホーム 公開 ROSTER section (`players_public` view 経由で anon でも閲覧可能、 sensitive 列 [user_id] 除外 + active + 非削除 + 助っ人除外、 写真 + 背番号 + 役職 + 名前 + ポジション + コメント を grid card 表示、 mobile 2 列 / sm 3 列 / md 4 列)
+- スコアブック画像 client upload UI (editor+ が `/scorebooks/[result_id]` の画面から直接アップロード、 multi file 選択 + 10MB 上限、 filename は `<timestamp>_<safe_name>` で sort 順保証)
 
 ## DB スキーマ
 
 PostgreSQL (Supabase)、 主要 table:
 
-- **players**（選手名簿） — 背番号、 ポジション、 打/投左右、 入団年、 active/OB 区分、 team_role 自由テキスト、 **is_guest** (助っ人フラグ、 2026-05-24 追加)
+- **players**（選手名簿） — 背番号、 ポジション、 打/投左右、 入団年、 active/OB 区分、 team_role 自由テキスト、 **is_guest** (助っ人フラグ)、 **photo_path** (Storage 写真 path、 2026-05-24 追加)、 **notes** (コメント、 自由記述)
 - **game_player_batting**（試合別打撃集計） — **1 試合 1 選手 = 1 row**、 PA/AB/H/2B/3B/HR/RBI/BB+HB/犠/盗/三振、 stats page の primary source、 xlsx ground truth
 - **game_player_pitching**（試合別投手集計） — **1 試合 1 投手 = 1 row**、 IP/R/H/K/BB/W/L
 - **at_bats**（打席ごと microdata、 未使用予備）、 **pitching_logs**（投球ごと microdata、 未使用予備）
@@ -71,4 +74,4 @@ Google OAuth、 5 段階権限制御（admin / editor / member / viewer / 未ロ
 
 ## ステータス
 
-着手: 2026-05-10、 公開: 2026-05-11 (Vercel Hobby plan)。 minami-baseball-ob（横浜市立南高校 野球部 OB 会サイト）を template として、 OB 専用機能を全削除し草野球チーム向けに再設計。 **2026-05-24 時点**で試合スケジュール / 試合結果 / 選手名簿 (23 名) / 試合別打撃 + 投手 DB / 試合別成績手動入力ページ (editor+、 /edit/game-stats) / 助っ人選手機能 / /stats page (打撃投手タブ + 年度フィルタ + sortable) / 会員専用投稿 / スコアブック inline 表示 + 90°/180° 回転 / 監督コメント / Open-Meteo 天気予報 + WBGT 全実装済。 編集メニューは 3 グループ (試合関連 / チーム情報 / その他) に整理。 Google OAuth は 2026 年 6 月開通予定。 フィードバック窓口は GitHub App 経由 private repo issue 化で 2026-05-23 から稼働。 Google Analytics は minami と独立な専用 GA4 property (G-PJQFLXL3P6) を 2026-05-24 開設。
+着手: 2026-05-10、 公開: 2026-05-11 (Vercel Hobby plan)。 minami-baseball-ob（横浜市立南高校 野球部 OB 会サイト）を template として、 OB 専用機能を全削除し草野球チーム向けに再設計。 **2026-05-24 時点**で試合スケジュール / 試合結果 / 選手名簿 (23 名) / 試合別打撃 + 投手 DB / 試合別成績手動入力ページ (editor+、 /edit/game-stats) / 助っ人選手機能 / /stats page (打撃投手タブ + 年度フィルタ + sortable) / 会員専用投稿 / スコアブック inline 表示 + 90°/180° 回転 / 監督コメント / Open-Meteo 天気予報 + WBGT 全実装済。 編集メニューは 3 グループ (試合関連 / チーム情報 / その他) に整理。 Google OAuth は 2026-05-24 に Production publish 完了 (任意の Google アカウントで login 可、 fwyasu11 以外も sign up 成功)、 会員申請 Form メアドは Verified mode で自動取得 (本人検証済 + 編集不可)。 フィードバック窓口は GitHub App 経由 private repo issue 化で 2026-05-23 から稼働。 Google Analytics は minami と独立な専用 GA4 property (G-PJQFLXL3P6) を 2026-05-24 開設。 2024 シーズン試合結果 13 件 (ダブルヘッダー + 中止 + 紅白戦含む) を取り込み済 (通算 27 試合)。 名簿に写真 + コメント機能、 ホーム 06 ROSTER 公開 section、 スコアブック画像の editor 直 upload UI を 2026-05-24 追加。
