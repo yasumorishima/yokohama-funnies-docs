@@ -6,15 +6,6 @@
 
 ---
 
-### PC
-
-<p>
-  <img src="screenshots/top-pc.png" alt="Top Page" width="48%">
-  <img src="screenshots/results.png" alt="Game Results" width="48%">
-</p>
-
----
-
 ## Tech Stack
 
 | Layer | Technology |
