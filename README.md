@@ -1,78 +1,432 @@
-# 横浜ファニーズ 公式サイト 技術解説
+# Yokohama Funnies - 横浜ファニーズ 公式サイト
 
-草野球チーム「横浜ファニーズ」の公式サイト技術解説リポジトリ。
+草野球チーム「横浜ファニーズ」（メンバー約30名 / 23-player roster）の公式Webアプリケーション。試合結果・予定管理、選手名簿、試合別の打撃・投手成績、出欠管理、写真ギャラリーなどを、5段階の権限制御のもとで運用しています。minami-baseball-ob（横浜市立南高校 野球部OB会サイト）を template として 2026-05-10 から構築。
 
-サイト本体は private リポ（https://github.com/yasumorishima/yokohama-funnies）。
+**https://yokohama-funnies.vercel.app/** | ソースコード: private | 公開 cron workflow: [yokohama-funnies-public-cron](https://github.com/yasumorishima/yokohama-funnies-public-cron)
 
-公開 cron: [yokohama-funnies-public-cron](https://github.com/yasumorishima/yokohama-funnies-public-cron) （ubuntu-latest 無料枠で `/weather` ISR cache warm + 週次 `/schedule` SSR fire で Supabase auto-pause 回避、 anon key 不要、 RPi5 outage 影響圏外）。
+---
 
-## サイトについて
+### PC
 
-- **本番**: https://yokohama-funnies.vercel.app/ （公開済）
-- **対象**: 横浜ファニーズのメンバー向け
-- **目的**: 試合・練習・成績・出欠の一元管理
+<p>
+  <img src="screenshots/top-pc.png" alt="Top Page" width="48%">
+  <img src="screenshots/results.png" alt="Game Results" width="48%">
+</p>
 
-## 技術スタック
+---
 
-- **フロント**: Next.js 15 (App Router) + TypeScript + Tailwind CSS 4
-- **バックエンド**: Supabase（Postgres + Auth + Storage）
-- **ホスティング**: Vercel
-- **CI**: GitHub Actions
+## Tech Stack
 
-## 主要機能（実装中）
+| Layer | Technology |
+|-------|-----------|
+| Framework | **Next.js 15** (App Router / React 19 / Server Components) |
+| Language | **TypeScript 5.8** (strict mode) |
+| Styling | **Tailwind CSS 4** (PostCSS-first, `@theme` CSS variables) |
+| Database | **Supabase** (PostgreSQL + RLS + DB Triggers, Tokyo region / Free plan) |
+| Auth | **Supabase Auth** (Google OAuth / SSR cookie pattern) |
+| Storage | **Supabase Storage** (photos + scorebook images, client-side resize) |
+| Hosting | **Vercel** (Hobby plan, git push auto-deploy) |
+| CI/CD | **GitHub Actions** (会員申請 / role sync / monitoring は public repo [yokohama-funnies-public-cron](https://github.com/yasumorishima/yokohama-funnies-public-cron) で実行 — private repo の GHA quota 枯渇対策、GitHub App installation token で private repo に push/PR back) |
+| Analytics | **Google Analytics 4** (`G-PJQFLXL3P6`, Cookie consent gate) |
+| Weather | **Open-Meteo API** (free, no API key, 30-min ISR cache + external cron warm) |
+| Testing | **Playwright** (e2e: skeleton / navigation / weather / screenshot) |
+| GitHub integration | **GitHub App `yokohama-funnies-bot`** (Installation token via `@octokit/auth-app`, PAT-less) |
+| External | **Google Apps Script** (Member form dispatch + feedback Gmail notification + hourly heartbeat) |
 
-- 試合スケジュール / 試合結果管理
-- 個人成績ページ `/members-only/stats` (打撃 / 投手 タブ切替 + 年度フィルタ button group + 全 header クリックでソート、 打撃は全選手表示 [0 打席含む]、 投手は登板選手のみ、 列順は見たい指標 [打率/OPS/防御率/WHIP/K-9] を左、 12 月の試合は翌年 season 扱い特別対応)
-- 出欠管理（試合・練習）
-- 写真ギャラリー
-- お知らせ・会員専用投稿 (2 カテゴリ: 会計記録 / 連絡事項)
-- 会員申請フォーム → **申請が届くと承認用の PR が自動作成され、 管理者がマージするだけで承認完了 + 本人に承認メール** (新規 OAuth signup で trigger が viewer 自動付与、 マージで member 昇格、 編集権限は管理者が個別付与、 手動承認は `/admin/roles`)。 申請受付時に管理者にもメール通知 (Google Form → Apps Script → Vercel proxy → public repo の GitHub Actions → GitHub App、 private repo の Actions 枠を使わず public repo で実行)
-- フィードバックフォーム `/feedback` (Google ログイン要、 GitHub App `yokohama-funnies-bot` 経由で private repo に issue 自動起票、 **送信時に管理者へメール通知も送信**、 運営が GitHub 上で管理)
-- silent-fail 監視 (会員申請 / フィードバックの通知経路を毎時自動チェックし、 認証鍵の不一致や経路断などで通知が静かに止まったら管理者にメール警告。 「気付かないうちに申請が届かない」 事故を防止)
-- 球場の天気予報 (Open-Meteo API、 WBGT 当日 hourly ピーク判定、 横浜スタジアム 先頭 + デフォルト展開、 降水量 mm 表示 「累計 N.Nmm」 (日別) + 毎時 mm (時間帯別)、 雨アイコン 4 段階 小雨/中雨/大雨/暴風雨 を mm で判定)
-- ホーム CONTENTS ナビバンド (5 色 card-style + 横スライド snap で 5 セクションへ即ジャンプ、 hint label 2 段表示)
-- スコアブック viewer (会員以上、 試合詳細 `/results/[id]` page で画像 inline 閲覧 + 監督コメント本文 inline、 別 page `/scorebooks/[result_id]` も残置、 editor は同 page で 90°/180° step 回転 + 画像クリックで原寸別タブ拡大、 sharp 経由 download + rotate + upsert)
-- 監督コメント (`/results/[id]` 試合詳細に会員限定で本文表示、 editor のみ投稿/編集 link、 1 試合 1 件、 履歴 trigger 付き)
-- 試合別成績手動入力 (`/edit/game-stats` hub + `/edit/game-stats/[result_id]` 入力ページ、 editor+ 限定、 上半分 scorebook 画像表示 + 下半分 打撃/投手 タブ + 選手 picker + inline input + bulk UPSERT、 mobile (≤640px) は 1 選手 1 card、 入力済試合は /results/[id] の inline 成績で member+ に表示、 助っ人選手は名簿に先行追加してから picker で選択)
-- 助っ人選手 (`players.is_guest BOOLEAN`、 名簿 form の checkbox、 ON で 背番号 input disable + jersey_number=NULL 強制、 /stats 累計から除外、 選手一覧 末尾 group、 試合別 inline 成績の 背番号 欄に「助っ人」 表示)
-- 選手ごと 写真 + コメント (`players.photo_path` 列追加 [2026-05-24]、 既存 `notes` 列をコメント用に再利用、 /members-only/players edit form に写真 upload + 削除 button + コメント textarea、 list page で 円形 thumbnail + コメント 2 行 truncate 表示)
-- ホーム 公開 ROSTER section (`players_public` view 経由で anon でも閲覧可能、 sensitive 列 [user_id] 除外 + active + 非削除 + 助っ人除外、 写真 + 背番号 + 役職 + 名前 + ポジション + コメント を grid card 表示、 mobile 2 列 / sm 3 列 / md 4 列)
-- スコアブック画像 client upload UI (editor+ が `/scorebooks/[result_id]` の画面から直接アップロード、 multi file 選択 + 10MB 上限、 filename は `<timestamp>_<safe_name>` で sort 順保証)
+---
 
-## DB スキーマ
+## Architecture
 
-PostgreSQL (Supabase)、 主要 table:
+```
+                         +-----------------+
+                         |   Google Form   |
+                         |   (Member)      |
+                         +--------+--------+
+                                  |
+                         Google Apps Script
+                                  | HMAC (WEBHOOK_SECRET)
+                                  v
+                         +-----------------+
+                         |  Vercel API     |
+                         |  /api/gas-proxy |  (GitHub App yokohama-funnies-bot)
+                         +--------+--------+
+                                  | repository_dispatch (target: yokohama-funnies-public-cron)
+                                  v
+     +----------------------------+----------------------------+
+     |     GitHub Actions (yokohama-funnies-public-cron, public)|
+     |  member-request  sync-roles  health-check (hourly)      |
+     +---+---------------------+-------------------------------+
+         | App token push      | App token + Supabase REST
+         | + PR back to        | + GAS approval-notify
+         | private repo        |
+     +---v---------------------v---+     +-------------------+
+     |         GitHub Repo         |     |   Vercel (CDN)    |
+     |  config/members.yml (RBAC)  +---->+   Auto Deploy     |
+     |                             |push |                   |
+     +-----------------------------+     +--------+----------+
+                                                  |
+                                         +--------v----------+
+                                         |  Next.js 15 App   |
+                                         +--------+----------+
+                                                  |
+                               +------------------+------------------+
+                               |                  |                  |
+                      +--------v---+    +---------v----+   +---------v---+
+                      | Supabase   |    | Supabase     |   | Supabase      |
+                      | PostgreSQL |    | Auth (OAuth)  |   | Storage       |
+                      | + RLS/Trig |    | Google SSO   |   | photos/       |
+                      |            |    | 5-tier RBAC  |   | scorebooks/   |
+                      +------------+    +--------------+   +---------------+
+```
 
-- **players**（選手名簿） — 背番号、 ポジション、 打/投左右、 入団年、 active/OB 区分、 team_role 自由テキスト、 **is_guest** (助っ人フラグ)、 **photo_path** (Storage 写真 path、 2026-05-24 追加)、 **notes** (コメント、 自由記述)
-- **game_player_batting**（試合別打撃集計） — **1 試合 1 選手 = 1 row**、 PA/AB/H/2B/3B/HR/RBI/BB+HB/犠/盗/三振、 stats page の primary source、 xlsx ground truth
-- **game_player_pitching**（試合別投手集計） — **1 試合 1 投手 = 1 row**、 IP/R/H/K/BB/W/L
-- **at_bats**（打席ごと microdata、 未使用予備）、 **pitching_logs**（投球ごと microdata、 未使用予備）
-- **attendances**（出欠） — ○/△/×/未回答
-- **members_posts**（会員投稿） — 2 カテゴリ: 会計記録 / 連絡事項
-- **trigger on auth.users** — 新規 OAuth signup で `user_roles(role='viewer')` を auto-INSERT
+---
 
-## 認証
+## Project Scale
 
-Google OAuth、 5 段階権限制御（admin / editor / member / viewer / 未ログイン）。
+<!-- stats-start (auto-updated by GitHub Actions) -->
+| Metric | Count |
+|--------|-------|
+| TypeScript/TSX files | <!--stat:ts_files-->146<!--/stat--> |
+| Lines of code | <!--stat:loc-->~16500<!--/stat--> |
+| Page routes | <!--stat:pages-->43<!--/stat--> |
+| API routes | <!--stat:apis-->9<!--/stat--> |
+| Reusable components | <!--stat:components-->52<!--/stat--> |
+| DB tables (+ history) | <!--stat:tables_main-->19<!--/stat--> + <!--stat:tables_hist-->5<!--/stat--> |
+| DB migrations | <!--stat:migrations-->50<!--/stat--> |
+| GitHub Actions workflows | <!--stat:workflows-->4<!--/stat--> |
+| e2e tests | 18 |
+| Hosting cost | ¥0 / month |
+<!-- stats-end -->
 
-## データ取り込み
+---
 
-- スコアブック OCR (`baseball-scorebook-ocr`、 RPi5 ローカル): 紙のスコアブック → at_bats / pitching_logs に同期
-- スプレッドシート（既存）: 移行期間のみ並行運用
+## Key Features
 
-## 視覚デザイン
+### 5-Tier Role-Based Access Control
 
-- **フォント**: Zen Maru Gothic (Japanese 丸ゴシック) + Fredoka (英字)
-- **配色**: navy `#1e3a8a` (チームカラー) + orange `#ea580c` (アクセント) + 白 `#ffffff` (背景、 favicon の navy cap + orange F + 白 と整合) + sky-blue `#dbeafe` (section-alt) + slate `#cbd5e1` (border)
-- **レイアウト**: Photo Magazine スタイル長スクロール。 全幅 hero (`h-[85vh]`) + bottom-aligned 巨大タイトル、 editorial `№ 01-05` セクションラベル、 大型 Card (`rounded-3xl` + ソフト影)
-- **トップ構成**: Hero → CONTENTS ナビバンド (5 色 card-style + 横スライド snap) → 横浜スタジアム 3 日天気 (M/D + 曜日 + 降水% + 累計 N.Nmm + 雨強度別アイコン、 クリックで /weather に遷移し横浜スタジアムが先頭で自動展開) → チームの一言 → ABOUT US → MOMENTS (写真) → NEWS → UP NEXT (Google Calendar 風 月間ビュー) → RECORD
+Middleware + RLS の2層で認可を実施。全操作を権限に応じて制御。
 
-## セキュリティ
+| Level | Role | Access |
+|-------|------|--------|
+| 1 | Guest | Public pages |
+| 2 | `viewer` | Logged in, awaiting approval |
+| 3 | `member` | + Member-only pages (選手成績 / 出欠 / 会員専用投稿 / スコアブック閲覧) |
+| 4 | `editor` | + Content CRUD (8 edit pages + inline editing) |
+| 5 | `admin` | + User management, audit logs, trash |
 
-- **権限**: Supabase RLS で全 table 行レベル制御、 5 段階 role
-- **secret 検知**: gitleaks workflow が main push / PR / 手動実行で全履歴スキャン、 binary は SHA256 検証で取得（supply-chain 防御）
-- **env 規約**: `.env.production` は `NEXT_PUBLIC_*` のみ（client 公開前提値）、 service_role / DB password / admin token 系は GitHub Actions secrets で管理
+- **Next.js Middleware**: Route-level access control, redirect unauthorized users
+- **Supabase RLS**: Row-level policies using `get_user_role()` DB function
+- **Component-level**: `useAuth()` hook for conditional UI rendering
+- New OAuth signups auto-receive `viewer` via an `auth.users` trigger
 
-## ステータス
+### Automated Member Management Pipeline (PR-based)
 
-着手: 2026-05-10、 公開: 2026-05-11 (Vercel Hobby plan)。 minami-baseball-ob（横浜市立南高校 野球部 OB 会サイト）を template として、 OB 専用機能を全削除し草野球チーム向けに再設計。 **2026-05-24 時点**で試合スケジュール / 試合結果 / 選手名簿 (23 名) / 試合別打撃 + 投手 DB / 試合別成績手動入力ページ (editor+、 /edit/game-stats) / 助っ人選手機能 / /stats page (打撃投手タブ + 年度フィルタ + sortable) / 会員専用投稿 / スコアブック inline 表示 + 90°/180° 回転 / 監督コメント / Open-Meteo 天気予報 + WBGT 全実装済。 編集メニューは 3 グループ (試合関連 / チーム情報 / その他) に整理。 Google OAuth は 2026-05-24 に Production publish 完了 (任意の Google アカウントで login 可、 fwyasu11 以外も sign up 成功)、 会員申請 Form メアドは Verified mode で自動取得 (本人検証済 + 編集不可)。 フィードバック窓口は GitHub App 経由 private repo issue 化で 2026-05-23 から稼働。 Google Analytics は minami と独立な専用 GA4 property (G-PJQFLXL3P6) を 2026-05-24 開設。 2024 シーズン試合結果 13 件 (ダブルヘッダー + 中止 + 紅白戦含む) を取り込み済 (通算 27 試合)。 名簿に写真 + コメント機能、 ホーム 06 ROSTER 公開 section、 スコアブック画像の editor 直 upload UI を 2026-05-24 追加。 **2026-05-25 に会員申請パイプライン + フィードバック通知 + silent-fail 監視を minami と同一運用で構築** (会員申請は承認用 PR 自動作成 → 管理者マージで承認 + 本人へ承認メール + 受付時に管理者メール、 フィードバックは送信時に GitHub issue + 管理者メール、 通知経路は public repo の GitHub Actions で毎時自動監視)。
+Google Forms から PR 作成、マージで権限反映まで、**個人情報をGitに一切残さず**に完結する会員管理フロー。minami-baseball-ob と同一 topology。
+
+```
+Google Form submit (氏名 + 背番号)
+  -> Google Apps Script gas-member-form (HMAC-signed call to Vercel proxy)
+    -> Vercel /api/gas-proxy/dispatch (GitHub App yokohama-funnies-bot via Installation token)
+      -> GitHub repository_dispatch (target: yokohama-funnies-public-cron)
+        -> GitHub Actions member-request.yml: auto-create PR editing config/members.yml
+        -> GAS notifyAdmin: Gmail notification to admin
+          -> Admin merges PR
+            -> GitHub Actions sync-roles.yml (*/15 polling): config/members.yml -> Supabase user_roles
+            -> GAS approval-notify: approval email to the applicant
+```
+
+- 会員承認 = 管理者が PR をマージするだけ（viewer→member 昇格は冪等同期）
+- 編集権限が必要な人は admin が `config/members.yml` の `editor:` に移してマージ（編集権限の要不要は申請者に聞かない方針）
+- funnies private repo は GHA quota 枯渇のため、Actions は public repo `yokohama-funnies-public-cron` で実行
+
+### In-App Feedback Form
+
+メンバーが GitHub アカウント不要でフィードバックを送信できる仕組み。サイト内 `/feedback` ページで完結。
+
+```
+/feedback page (Google login required)
+  -> Next.js API route /api/feedback
+    -> GitHub App yokohama-funnies-bot: create GitHub Issue on private repo
+    -> GAS Web App doPost (FEEDBACK_GAS_URL): Gmail notification to admin
+```
+
+- Google login required (Supabase Auth)
+- Issue auto-created on the private repo so the team can triage on GitHub
+
+### Per-Game Stats & Scorebook OCR
+
+紙のスコアブックを起点に、試合別の打撃・投手成績を DB 化して集計表示する仕組み。
+
+- **Per-game batting / pitching tables**: `game_player_batting`（1 試合 1 選手 = 1 row、PA/AB/H/2B/3B/HR/RBI/BB+HB/犠/盗/三振）と `game_player_pitching`（IP/R/H/K/BB/W/L）が `/members-only/stats` の primary source
+- **Aggregate views**: `player_batting_stats`（打率 / 出塁率 / 長打率）+ `player_pitching_stats`（ERA / WHIP / K9）、season filter は client 側
+- **Editor 手入力 UI** `/edit/game-stats` (hub) + `/edit/game-stats/[result_id]`: 上半分にスコアブック画像、下半分に打撃 / 投手タブ + 選手 picker + inline input + bulk UPSERT。mobile (≤640px) は 1 選手 = 1 card。data 整合性 guard（`2B+3B+HR > H` や `AB > PA` を throw）
+- **Scorebook viewer**: private bucket `scorebooks/<game_date>/*` convention、admin client で list + 1h signed URL、member+ は試合詳細 `/results/[id]` で画像を inline 閲覧。editor は同 page で 90°/180° step 回転（sharp 経由 API `/api/scorebooks/rotate`）+ client upload UI（multi file / 10MB 上限）
+- **OCR ingestion**: companion repo `baseball-scorebook-ocr`（Claude Opus 4.7 Vision）+ 既存スプレッドシートからの移行
+- **Stats page** `/members-only/stats`: 打撃 / 投手タブ + 年度フィルタ + sortable headers。打撃は全選手表示（0 打席含む、休部は grayed-out）、投手は登板選手のみ。12 月の試合は翌年 season 扱い
+
+### Roster & Public ROSTER Section
+
+- **Player roster** `/members-only/players`: 背番号 / ポジション / 打投左右 / status / team_role / 写真 + コメント
+- **Guest players** (`players.is_guest`): 名簿 form の「助っ人」 checkbox、ON で `jersey_number=NULL` 強制、`/stats` 累計から除外、名簿末尾 group
+- **Public ROSTER (№ 06)**: home top の公開 section。`players_public` view（anon-readable、sensitive 列除外 + active + 非削除 + 助っ人除外）経由で写真 + 背番号 + 役職 + 名前 + ポジション + コメントを grid card 表示
+
+### Attendance Management
+
+- 出欠回答ページ + 試合詳細ページ内の出欠 toggle（○/△/×、member 以上、集計と名簿表示）
+- `attendances` table は `schedule_id + user_id` UNIQUE、集計 view `attendances_with_user`
+
+### Content Management (Custom CMS)
+
+外部CMSを使わず、**Supabase + Next.js で構築した独自CMS**。ソフトデリート、変更履歴、監査ログを標準装備。
+
+- **8 editor pages** (3 groups: 試合関連 / チーム情報 / その他): Results, Schedule, Announcements, Media, Game Stats, Manager Comment, Team Message, Account
+- **Inline editing**: Edit content directly on detail pages (no page transition)
+- **Update tracking**: All tables have `updated_by` (auto-set by DB trigger via `auth.uid()`)
+- **Soft delete + 7-day trash**: Auto-purge via scheduled GitHub Actions
+- **Change history**: DB triggers auto-save previous versions on UPDATE/DELETE
+- **Audit logs**: All privilege changes and deletions are recorded
+- **Bidirectional linking**: Schedule <-> Results linked by `schedule_id`, photos shared across both (`photos.schedule_id` ties photos to result-less events such as 練習 / 飲み会)
+- **Manager comment**: `/results/[id]` 試合詳細に member 限定で監督コメント本文を inline 表示、editor のみ投稿 / 編集、1 試合 1 件、履歴 trigger 付き
+- **Members-only posts** (`members_posts`): 2 categories — 会計記録 / 連絡事項
+- **Team message** `/edit/team-message`: editor 以上、home top に DB-backed 表示、履歴保持
+
+### Game Type Taxonomy (草野球向け)
+
+- **Results**: 公式戦 ワイワイリーグ / 公式戦 区民大会 / 練習試合 / その他
+- **Schedule**: 上記 + 練習 / 飲み会・懇親会
+- **Result filter** (`/results`): すべて / ワイワイ / 区民大会 / 練習試合 / その他
+- 試合結果ページに「🏆 区民大会公式 試合結果ページ（横浜南区野球協会）↗」 外部リンク
+
+### Weather Forecast Integration
+
+Open-Meteo API（無料）を使った球場別天気予報。予定との連動で試合当日の天気をすぐ確認できる。
+
+- **`/weather` page**: 横浜スタジアム（ベイスターズ本拠地）を先頭に並べ替えてデフォルト展開、expandable cards with 3-day forecast + hourly breakdown
+- **Schedule integration**: 試合当日の天気を試合詳細・home top カードに表示
+- **降水量 (mm)**: 日別カードに「累計 N.Nmm」、時間帯別に毎時 mm 値で常時表示
+- **雨アイコン 4 段階**: mm 値で 小雨 / 中雨 / 大雨 / 暴風雨 に分割（daily 5/30/80 mm + hourly 1/5/15 mm 閾値）、確率同値でも強度差が視覚的に分かる
+- **WBGT (熱中症指数) warning**: `0.725*T + 0.0368*RH + 0.00364*T*RH - 4.25` で算出、日本スポーツ協会基準で 注意/警戒/厳重警戒/危険 を判定。**判定は current 値ではなく当日 hourly の WBGT ピーク**を使い、朝の時点で午後ピークが来る日も確実に警戒として可視化
+- **Open-Meteo API** (free, no key, `wind_speed_unit=ms`, `relative_humidity_2m`), 30-min ISR cache
+
+### Silent-Fail Monitoring
+
+会員申請 / フィードバックの通知経路が静かに止まる事故を防ぐための毎時監視。minami の 1 ヶ月 silent fail 事案の再演防止。
+
+- `yokohama-funnies-public-cron` の `health-check.yml` が毎時 4 probe を実行: Vercel proxy dispatch / health-check-ack freshness / GAS gas-heartbeat freshness / feedback Web App secret-match
+- GAS `hourlyHealthCheck` time trigger が毎時 heartbeat 送信
+- 異常時に admin へ Gmail 警告
+
+---
+
+## Database Design
+
+19 main/utility tables + 5 history tables + views, all protected by Row-Level Security.
+
+```
+user_roles ----< results         (author)
+    |      ----< schedule        (author)
+    |      ----< announcements   (author)
+    |      ----< members_posts   (author, member+ read, editor+ write)
+    |      ----< bookmarks       (owner, RLS: self-only)
+    |
+    +-- audit_logs               (auto-recorded by DB triggers)
+    +-- *_history (x5)           (auto-saved on UPDATE/DELETE)
+
+players  (背番号 UNIQUE / bats/throws/status / is_guest / photo_path / comment / team_role)
+    |  players_public (view: anon-readable roster, sensitive cols filtered)
+    +--< game_player_batting     (1 game x 1 player = 1 row, 14 cols)
+    +--< game_player_pitching    (1 game x 1 pitcher = 1 row)
+    |        player_batting_stats / player_pitching_stats (aggregate views)
+    +--< attendances             (○/△/×, schedule_id + user_id UNIQUE)
+    at_bats / pitching_logs      (per-PA / per-pitch microdata, reserved)
+
+schedule <---> results           (bidirectional via schedule_id)
+photos ----< results | schedule | announcements
+
+Storage buckets:
+  photos/        (public, game + player photos, editor+ upload)
+  scorebooks/    (private, <YYYY-MM-DD>/*.jpg|png|pdf, editor+ client write, 1h signed URL viewer)
+```
+
+### Tables
+
+| Table | Description |
+|-------|-------------|
+| `user_roles` | Permissions (admin/editor/member/viewer) + display name |
+| `players` | Player roster (背番号 UNIQUE, bats/throws/status, is_guest, photo_path, comment, team_role) |
+| `game_player_batting` | Per-game batting (1 game x 1 player = 1 row, PA/AB/H/2B/3B/HR/RBI/BB+HB/SF/SB/K) |
+| `game_player_pitching` | Per-game pitching (1 game x 1 pitcher = 1 row, IP/R/H/K/BB/W/L) |
+| `at_bats` / `pitching_logs` | Per-PA / per-pitch microdata (reserved, currently unused) |
+| `attendances` | Attendance (○/△/×, schedule_id + user_id UNIQUE) |
+| `results` | Game results (ワイワイリーグ / 区民大会 / 練習試合 / その他). Soft delete |
+| `schedule` | Events (games, practice, social). Soft delete |
+| `announcements` | News posts. Soft delete |
+| `members_posts` | Members-only posts (2 categories: 会計記録 / 連絡事項). Soft delete |
+| `photos` | Photo metadata (Storage integration, FK linkage incl. schedule_id) |
+| `videos` | Videos (YouTube embed URL) |
+| `audit_logs` | Audit trail (privilege changes, soft deletes via DB trigger) |
+| `bookmarks` | User bookmarks (RLS: self-only) |
+| `*_history` (x5) | Change history (auto-saved on UPDATE/DELETE via DB trigger) |
+
+### Views
+
+| View | Purpose |
+|------|---------|
+| `player_batting_stats` | Aggregate batting (打率 / 出塁率 / 長打率) |
+| `player_pitching_stats` | Aggregate pitching (ERA / WHIP / K9) |
+| `players_public` | Anon-readable roster (sensitive cols filtered, active + non-deleted + non-guest) |
+| `attendances_with_user` | Attendance joined with member display name |
+| `*_with_author` | Content joined with author display name + `updated_by` |
+
+### DB Functions & Triggers
+
+| Function | Type | Purpose |
+|----------|------|---------|
+| `get_user_role()` | RLS | Get current user's role |
+| `is_admin()` | RLS | Check if admin |
+| `is_editor_or_above()` | RLS | Check if editor+ |
+| `is_member_or_above()` | RLS | Check if member+ |
+| `handle_new_user()` | Trigger | Auto-insert `user_roles(role='viewer')` on new OAuth signup |
+| `log_user_roles_change()` | Trigger | Record role changes to `audit_logs` (with `auth.uid() IS NOT NULL` guard) |
+| `log_soft_delete()` | Trigger | Record soft deletes to `audit_logs` |
+
+### Key Design Decisions
+
+- **Soft delete** on all content tables (`deleted_at` column) with 7-day auto-purge
+- **DB triggers** for `updated_at`, `updated_by` (server-side via `auth.uid()`), audit logging, and history snapshots
+- **`auth.users` trigger** auto-inserts `viewer` on new OAuth signup, with `auth.uid() IS NOT NULL` guard so anon-path signup INSERTs are not blocked by audit-log RLS
+- **Editor delete policy**: `game_player_batting` / `game_player_pitching` DELETE は `is_editor_or_above()`（手入力ページで row 削除でき、累計の二重計上を防ぐ）
+- **DB functions** for RLS: `get_user_role()`, `is_admin()`, `is_editor_or_above()`, `is_member_or_above()`
+- **Versioned migrations** in `supabase/migrations/`
+
+---
+
+## CI/CD & Automation
+
+| Workflow | Trigger | What it does |
+|----------|---------|-------------|
+| **Member Request PR** (public-cron) | Google Form (GAS → Vercel proxy → `repository_dispatch` to yokohama-funnies-public-cron) | GitHub App installation token を mint → private repo の `config/members.yml` を編集する PR を自動作成、admin へ Gmail 通知 |
+| **Sync Member Roles** (public-cron) | `*/15 * * * *` polling | App token で `config/members.yml` を fetch → parse → Supabase `user_roles` に diff 同期（idempotent、昇格検出時のみ GAS Gmail で承認通知） |
+| **Health Check** (public-cron, monitoring) | Hourly | 4 probe（Vercel proxy dispatch / health-check-ack freshness / GAS gas-heartbeat freshness / feedback Web App secret-match）、異常時 admin に Gmail |
+| **Weather Warm / Schedule Fire** (public-cron) | `*/30` + 週次 | `/weather` の ISR cache を warm + 週次で `/schedule` SSR fire（Supabase auto-pause 回避、anon key 不要） |
+| **Update README Stats** (public-cron) | Monthly (1st, JST 09:00) / manual | ファイル数・LOC・ページ数・table 数等を算出し `<!--stat:KEY-->` マーカーを private + docs README に同期 |
+
+All workflows use **minimal `permissions`** (principle of least privilege).
+
+### Google Apps Script Integrations
+
+| Script | Purpose |
+|--------|---------|
+| `gas-member-form/` | 会員申請 onFormSubmit → Vercel proxy `/api/gas-proxy/dispatch` → PR auto-creation（HMAC `WEBHOOK_SECRET`、no PAT in GAS）。フィードバック通知 `doPost` + `hourlyHealthCheck` heartbeat も兼務 |
+
+---
+
+## Security
+
+| Measure | Implementation |
+|---------|---------------|
+| **Row-Level Security** | All tables. `members_posts`: member+ read. Private storage bucket with signed URLs |
+| **Server-only admin client** | `import "server-only"` prevents client-side import of service_role key |
+| **Auth callback validation** | Open redirect prevention in `/auth/callback` |
+| **Workflow permissions** | Every GitHub Actions workflow declares minimal permissions |
+| **Privacy-first membership** | Personal names never appear in Git history (`config/members.yml` stores UID + 背番号 only) |
+| **Cookie consent** | GA4 script loads only after explicit user consent |
+| **GitHub App authentication** | `yokohama-funnies-bot` GitHub App の Installation token 方式（classic PAT を保持しない）。token は 1h 自動更新、permission は narrow scope |
+| **Secret centralization** | GAS は Vercel proxy に HMAC `FEEDBACK_GAS_SECRET` で authenticate するのみで GitHub 認証情報を保持しない。サーバ側クレデンシャルは Vercel env (Sensitive) に集約 |
+| **Audit log tamper resistance** | `audit_logs_insert` RLS policy uses `WITH CHECK (user_id = auth.uid())`。`log_user_roles_change` trigger は `auth.uid() IS NOT NULL` guard を持ち、anon-path の OAuth signup INSERT を audit-log RLS で block しない（migration 047 で「Database error saving new user」を完全 fix） |
+| **Source secret leak prevention** | `gitleaks` GHA が main push / PR / 手動実行で全履歴スキャン。binary は SHA256 検証で取得（supply-chain 防御）。`.gitleaks.toml` は `NEXT_PUBLIC_*` placeholder を allowlist。GitHub native Secret Scanning / Push Protection は free plan の private repo では使えないため gitleaks が唯一の検知層 |
+| **Env file 規約** | `.env.production` は `NEXT_PUBLIC_*` のみ（client 公開前提値）。service_role / DB password / admin token 系は GH Actions secrets / Vercel env のみ |
+| **Silent-fail monitoring** | 会員申請 + フィードバックの通知経路全段を `health-check.yml` で hourly 検査 + GAS `hourlyHealthCheck` から内側 probe、異常時は admin へ Gmail |
+
+---
+
+## UX & Accessibility
+
+- Mobile-first responsive design (base font 18px, line-height 1.7)
+- **PC viewport typography scaling**: `sm:` / `md:` / `lg:` breakpoints で text size を段階的に拡大（mobile/sm の見え方は keep）。公開全 page を PC ブラウザで可読性のあるサイズに調整
+- All touch targets >= 44px
+- Dark mode with full color sweep (league badge sky-200, tournament badge rose-200, attendance pill emerald/amber/rose-200, calendar 土曜 + 天気 min temp blue-300 で navy bg 上の視認性確保)
+- `aria-label` on result badges (Win/Loss/Draw)
+- **CONTENTS ナビバンド**: 5 色 card-style + 横スライド snap で 5 セクション（ABOUT / MOMENTS / NEWS / UP NEXT / RECORD）へ即ジャンプ、hint label 2 段表示
+- **Skeleton loading**: Suspense-based skeleton UI（layout changes auto-propagate to loading state, verified by Playwright e2e）
+- **Unsaved warning**: Click capture intercepts navigation on edit pages
+- **Share button**: Web Share API (mobile native share sheet) with LINE fallback (desktop)
+- **Google Calendar button**: One-tap calendar registration from schedule detail (URL scheme, no API key)
+- **LINE browser support**: Auto-detect LINE in-app browser on login — redirects to external browser for Google OAuth compatibility
+- **Safe delete UX**: Delete buttons hidden from list views, accessible only after entering edit mode, always followed by a confirmation modal
+- **Scroll-to-top fix**: `window.scrollTo({ behavior: 'auto' })` 明示で PageTransition remount と scroll-behavior:smooth の干渉を解消
+- Cookie consent banner (GA4 loads only after consent)
+- Error boundaries (`error.tsx` / `global-error.tsx`)
+
+---
+
+## Page Structure
+
+```
+Public
+  /                        Top page (hero + CONTENTS nav + 横浜スタジアム天気 + roster + news + calendar)
+  /about                   About the team
+  /results                 Game results (filter: ワイワイ/区民大会/練習試合/その他)
+  /results/[id]            Game detail (photos, inline stats, scorebook viewer, manager comment)
+  /schedule                Upcoming events
+  /schedule/[id]           Event detail (weather forecast + calendar registration)
+  /announcements           News
+  /announcements/[id]      News detail
+  /gallery                 Photo gallery (folder view)
+  /league                  League info
+  /players/[id]            Player detail
+  /search                  Cross-table full-text search
+  /weather                 Venue weather forecast (3-day + hourly + WBGT)
+  /feedback                Feedback form (Google login required)
+
+Auth / Member
+  /login                   Google OAuth login
+  /account                 Profile (背番号 input), cookie settings
+  /bookmarks               Saved articles
+  /attendances             Attendance response
+  /members-only            Hub
+  /members-only/players    Player roster
+  /members-only/stats      Per-player stats (batting/pitching tabs + season filter + sortable)
+  /members-only/posts      Members-only posts (会計記録 / 連絡事項)
+  /scorebooks/[result_id]  Scorebook viewer + editor upload
+
+Editor (8 pages)
+  /edit/results            Game results CRUD
+  /edit/schedule           Events CRUD
+  /edit/announce           Announcements CRUD
+  /edit/media              Photo management
+  /edit/game-stats         Per-game stats input hub + [result_id]
+  /edit/manager-comment    Manager comment CRUD
+  /edit/team-message       Home team message
+  /edit/account            (editor account utilities)
+
+Admin
+  /admin                   Dashboard
+  /admin/roles             User role management
+  /admin/trash             Soft-deleted items (restore/permanent delete)
+  /admin/audit             Audit log viewer
+  /admin/settings          Site settings (GA4 measurement ID etc.)
+```
+
+---
+
+## Design
+
+| Element | Value |
+|---------|-------|
+| Primary color | Navy `#1e3a8a` (team color) |
+| Accent | Orange `#ea580c` |
+| Background (light) | White `#ffffff` + section-alt sky-blue `#dbeafe` (blue-100) + border slate `#cbd5e1` |
+| Mobile font | 18px / line-height 1.7 |
+| Layout | Photo Magazine style — full-width hero (`h-[85vh]`) + bottom-aligned title + editorial `№ 01-05` section labels + 大型 Card (`rounded-3xl border-2 shadow-md`) |
+| Fonts | Zen Maru Gothic (Japanese 丸ゴシック) + Fredoka (Latin) |
+| GameType badge | ワイワイリーグ = navy (`bg-team/15`) / 区民大会 = rose / その他公式戦 = orange / 練習試合・その他 = gray |
+| Loading icon | `public/cap.png` (background 透過済、帽子シルエットのみ回転)、OG image にも同じ cap を中央配置 |
+| CSS Architecture | Tailwind CSS 4 `@theme` with CSS variables for light/dark |
+| Component library | Custom (no external UI framework) |
+
+---
+
+## Top Page Composition
+
+Hero → CONTENTS ナビバンド (5 色 card-style + 横スライド snap) → 横浜スタジアム 3 日天気 (M/D + 曜日 + 降水% + 累計 N.Nmm + 雨強度別アイコン、クリックで /weather に遷移) → チームの一言 → № 01 ABOUT US → № 02 MOMENTS (写真) → № 03 NEWS → № 04 UP NEXT (Google Calendar 風 月間ビュー) → № 05 RECORD → № 06 ROSTER (公開選手名簿)
