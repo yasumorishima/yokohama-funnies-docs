@@ -88,7 +88,7 @@
 |--------|-------|
 | TypeScript/TSX files | <!--stat:ts_files-->146<!--/stat--> |
 | Lines of code | <!--stat:loc-->~16500<!--/stat--> |
-| Page routes | <!--stat:pages-->43<!--/stat--> |
+| Page routes | <!--stat:pages-->999<!--/stat--> |
 | API routes | <!--stat:apis-->9<!--/stat--> |
 | Reusable components | <!--stat:components-->52<!--/stat--> |
 | DB tables (+ history) | <!--stat:tables_main-->19<!--/stat--> + <!--stat:tables_hist-->5<!--/stat--> |
