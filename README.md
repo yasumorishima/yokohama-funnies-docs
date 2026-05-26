@@ -164,6 +164,7 @@ Google Form submit (氏名 + 背番号)
 ### Attendance Management
 
 - 出欠回答ページ + 試合詳細ページ内の出欠 toggle（○/△/×、member 以上、集計と名簿表示）
+- **本格運用前（仮表示）**: 出欠の各入口（出欠一覧 / 予定 / 試合詳細）に「本格運用前（仮表示）」を明示。正式公開は **2026年7月** 予定、当面の実出欠はサークルスクエア
 - `attendances` table は `schedule_id + user_id` UNIQUE、集計 view `attendances_with_user`
 
 ### Content Management (Custom CMS)
@@ -203,7 +204,8 @@ Open-Meteo API（無料）を使った球場別天気予報。予定との連動
 
 会員申請 / フィードバックの通知経路が静かに止まる事故を防ぐための毎時監視。minami の 1 ヶ月 silent fail 事案の再演防止。
 
-- `yokohama-funnies-public-cron` の `health-check.yml` が毎時 4 probe を実行: Vercel proxy dispatch / health-check-ack freshness / GAS gas-heartbeat freshness / feedback Web App secret-match
+- `yokohama-funnies-public-cron` の `health-check.yml` が毎時 probe を実行: Vercel proxy dispatch / health-check-ack freshness / GAS gas-heartbeat freshness / feedback Web App secret-match
+- `check-pipeline-health.py` が member-request / sync-roles の **ワークフロー実行失敗** と sync-roles の **liveness（cron 停止＝3h 以上未実行）** を検出し、異常時は private repo に GitHub issue 自動作成 + GAS Gmail 通知、復旧で自動 close（2026-05-26 追加、minami と監視パリティ）
 - GAS `hourlyHealthCheck` time trigger が毎時 heartbeat 送信
 - 異常時に admin へ Gmail 警告
 
