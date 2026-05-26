@@ -148,12 +148,12 @@ Google Form submit (氏名 + 背番号)
 
 紙のスコアブックを起点に、試合別の打撃・投手成績を DB 化して集計表示する仕組み。
 
-- **Per-game batting / pitching tables**: `game_player_batting`（1 試合 1 選手 = 1 row、PA/AB/H/2B/3B/HR/RBI/BB+HB/犠/盗/三振）と `game_player_pitching`（IP/R/H/K/BB/W/L）が `/members-only/stats` の primary source
+- **Per-game batting / pitching tables**: `game_player_batting`（1 試合 1 選手 = 1 row、PA/AB/H/2B/3B/HR/RBI/BB+HB/犠/盗/三振）と `game_player_pitching`（IP/R/H/K/BB/W/L）が `/members-only/stats` の primary source。試合別に分解できない年度は `season_aggregates_batting` / `season_aggregates_pitching`（`season_year` + `player_id` 単位のシーズン通算）で補完（2024 シーズン = 打撃 19 名 + 投手 7 名）
 - **Aggregate views**: `player_batting_stats`（打率 / 出塁率 / 長打率）+ `player_pitching_stats`（ERA / WHIP / K9）、season filter は client 側
 - **Editor 手入力 UI** `/edit/game-stats` (hub) + `/edit/game-stats/[result_id]`: 上半分にスコアブック画像、下半分に打撃 / 投手タブ + 選手 picker + inline input + bulk UPSERT。mobile (≤640px) は 1 選手 = 1 card。data 整合性 guard（`2B+3B+HR > H` や `AB > PA` を throw）
 - **Scorebook viewer**: private bucket `scorebooks/<game_date>/*` convention、admin client で list + 1h signed URL、member+ は試合詳細 `/results/[id]` で画像を inline 閲覧。editor は同 page で 90°/180° step 回転（sharp 経由 API `/api/scorebooks/rotate`）+ client upload UI（multi file / 10MB 上限）
 - **OCR ingestion**: companion repo `baseball-scorebook-ocr`（Claude Opus 4.7 Vision）+ 既存スプレッドシートからの移行
-- **Stats page** `/members-only/stats`: 打撃 / 投手タブ + 年度フィルタ + sortable headers。打撃は全選手表示（0 打席含む、休部は grayed-out）、投手は登板選手のみ。12 月の試合は翌年 season 扱い
+- **Stats page** `/members-only/stats`: 打撃 / 投手タブ + 年度フィルタ（全年 / 2025 / 2024）+ sortable headers。打撃は全選手表示（0 打席含む、休部は grayed-out）、投手は登板選手のみ。12 月の試合は翌年 season 扱い。**規定打席（チーム試合数×1）到達者の打率・OPS（投手は防御率・WHIP）をアクセント色で強調**。試合別データの無い年度（2024）は `season_aggregates_*` の通算値を per-game の年度とシームレスに合算
 
 ### Roster & Public ROSTER Section
 
@@ -205,7 +205,7 @@ Open-Meteo API（無料）を使った球場別天気予報。予定との連動
 会員申請 / フィードバックの通知経路が静かに止まる事故を防ぐための毎時監視。minami の 1 ヶ月 silent fail 事案の再演防止。
 
 - `yokohama-funnies-public-cron` の `health-check.yml` が毎時 probe を実行: Vercel proxy dispatch / health-check-ack freshness / GAS gas-heartbeat freshness / feedback Web App secret-match
-- `check-pipeline-health.py` が member-request / sync-roles の **ワークフロー実行失敗** と sync-roles の **liveness（cron 停止＝3h 以上未実行）** を検出し、異常時は private repo に GitHub issue 自動作成 + GAS Gmail 通知、復旧で自動 close（2026-05-26 追加、minami と監視パリティ）
+- `check-pipeline-health.py` が member-request / sync-roles の **ワークフロー実行失敗** と sync-roles の **liveness（cron 停止＝6h 以上未実行、GitHub の scheduled cron 間引き ~4h を考慮）** を検出し、異常時は private repo に GitHub issue 自動作成 + GAS Gmail 通知、復旧で自動 close（2026-05-26 追加、minami と監視パリティ）
 - GAS `hourlyHealthCheck` time trigger が毎時 heartbeat 送信
 - 異常時に admin へ Gmail 警告
 
@@ -267,6 +267,7 @@ Storage buckets:
 |------|---------|
 | `player_batting_stats` | Aggregate batting (打率 / 出塁率 / 長打率) |
 | `player_pitching_stats` | Aggregate pitching (ERA / WHIP / K9) |
+| `season_aggregates_batting` / `season_aggregates_pitching` | per-game データの無い年度のシーズン通算 (2024) |
 | `players_public` | Anon-readable roster (sensitive cols filtered, active + non-deleted + non-guest) |
 | `attendances_with_user` | Attendance joined with member display name |
 | `*_with_author` | Content joined with author display name + `updated_by` |
