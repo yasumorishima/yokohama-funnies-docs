@@ -1,6 +1,6 @@
 # Yokohama Funnies - 横浜ファニーズ 公式サイト
 
-草野球チーム「横浜ファニーズ」（メンバー約30名 / 23-player roster）の公式Webアプリケーション。試合結果・予定管理、選手名簿、試合別の打撃・投手成績、出欠管理、写真ギャラリーなどを、5段階の権限制御のもとで運用しています。minami-baseball-ob（横浜市立南高校 野球部OB会サイト）を template として 2026-05-10 から構築。
+草野球チーム「横浜ファニーズ」の公式Webアプリケーション。試合結果・予定管理、選手名簿、試合別の打撃・投手成績、出欠管理、写真ギャラリーなどを、5段階の権限制御のもとで運用しています。minami-baseball-ob（横浜市立南高校 野球部OB会サイト）を template として 2026-05-10 から構築。
 
 **https://yokohama-funnies.vercel.app/** | ソースコード: private | 公開 cron workflow: [yokohama-funnies-public-cron](https://github.com/yasumorishima/yokohama-funnies-public-cron)
 
