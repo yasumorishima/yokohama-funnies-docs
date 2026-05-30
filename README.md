@@ -122,7 +122,7 @@ Google Form submit (氏名 + 背番号)
         -> GitHub Actions member-request.yml: auto-create PR editing config/members.yml
         -> GAS notifyAdmin: Gmail notification to admin
           -> Admin merges PR
-            -> GitHub Actions sync-roles.yml (*/15 polling): config/members.yml -> Supabase user_roles
+            -> GitHub Actions sync-roles.yml (*/5 polling): config/members.yml + config/members/*.yml -> Supabase user_roles
             -> GAS approval-notify: approval email to the applicant
 ```
 
@@ -160,6 +160,7 @@ Google Form submit (氏名 + 背番号)
 - **Player roster** `/members-only/players`: 背番号 / ポジション / 打投左右 / status / team_role / 写真 + コメント
 - **Guest players** (`players.is_guest`): 名簿 form の「助っ人」 checkbox、ON で `jersey_number=NULL` 強制、`/stats` 累計から除外、名簿末尾 group
 - **Public ROSTER (№ 06)**: home top の公開 section。`players_public` view（anon-readable、sensitive 列除外 + active + 非削除 + 助っ人除外）経由で写真 + 背番号 + 役職 + 名前 + ポジション + コメントを grid card 表示
+- **対外名 (public_name)**: 選手ごとに公開ページ専用の表示名を設定可能。`players_public` view が `COALESCE(NULLIF(public_name,''), name)` で解決し、設定があれば公開ロスターはその名前、空欄なら本名を表示。会員向けページ（選手名簿 / 成績 / box score）は常に本名
 
 ### Attendance Management
 
@@ -309,7 +310,7 @@ Storage buckets:
 | Workflow | Trigger | What it does |
 |----------|---------|-------------|
 | **Member Request PR** (public-cron) | Google Form (GAS → Vercel proxy → `repository_dispatch` to yokohama-funnies-public-cron) | GitHub App installation token を mint → private repo の `config/members.yml` を編集する PR を自動作成、admin へ Gmail 通知 |
-| **Sync Member Roles** (public-cron) | `*/15 * * * *` polling | App token で `config/members.yml` を fetch → parse → Supabase `user_roles` に diff 同期（idempotent、昇格検出時のみ GAS Gmail で承認通知） |
+| **Sync Member Roles** (public-cron) | `*/5 * * * *` polling | App token で `config/members.yml`（既存ロスター）+ `config/members/<uid>.yml`（申請ごと 1 ファイル）を fetch → union → Supabase `user_roles` に diff 同期（idempotent、昇格検出時のみ GAS Gmail で承認通知）。mass-demote safety guard で誤設定時の会員一斉降格を防止 |
 | **Health Check** (public-cron, monitoring) | Hourly | 4 probe（Vercel proxy dispatch / health-check-ack freshness / GAS gas-heartbeat freshness / feedback Web App secret-match）、異常時 admin に Gmail |
 | **Weather Warm / Schedule Fire** (public-cron) | `*/30` + 週次 | `/weather` の ISR cache を warm + 週次で `/schedule` SSR fire（Supabase auto-pause 回避、anon key 不要） |
 | **Update README Stats** (public-cron) | Monthly (1st, JST 09:00) / manual | ファイル数・LOC・ページ数・table 数等を算出し `<!--stat:KEY-->` マーカーを private + docs README に同期 |
