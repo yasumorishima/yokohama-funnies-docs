@@ -14,7 +14,7 @@
 | Language | **TypeScript 5.8** (strict mode) |
 | Styling | **Tailwind CSS 4** (PostCSS-first, `@theme` CSS variables) |
 | Database | **Supabase** (PostgreSQL + RLS + DB Triggers, Tokyo region / Free plan) |
-| Auth | **Supabase Auth** (Google OAuth / SSR cookie pattern) |
+| Auth | **Supabase Auth** (Google OAuth / SSR cookie pattern)。ログイン失敗時は生の技術エラー（PKCE 等）を表示せずやさしい日本語に変換し、PKCE/verifier 系は1回だけ自動リトライ（ループ防止）で多くは無音でログイン完了 |
 | Storage | **Supabase Storage** (photos + scorebook images, client-side resize) |
 | Hosting | **Vercel** (Hobby plan, git push auto-deploy) |
 | CI/CD | **GitHub Actions** (会員申請 / role sync / monitoring は public repo [yokohama-funnies-public-cron](https://github.com/yasumorishima/yokohama-funnies-public-cron) で実行 — private repo の GHA quota 枯渇対策、GitHub App installation token で private repo に push/PR back) |
