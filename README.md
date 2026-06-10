@@ -341,6 +341,8 @@ All workflows use **minimal `permissions`** (principle of least privilege).
 | **Source secret leak prevention** | `gitleaks` GHA が main push / PR / 手動実行で全履歴スキャン。スキャンは基本 GitHub Actions 無料枠（`ubuntu-latest`, x86_64）で走り、 無料枠枯渇等で hosted job が起動できない時は RPi5 self-hosted runner（`rpi5-funnies`, arm64）に自動 fallback してスキャンが途切れない（primary は `continue-on-error` + クリーン通過時のみ立つ output で gate するため、 実 secret 検出時も fallback が走り検知を維持）。binary は x86_64/arm64 とも SHA256 検証で取得（supply-chain 防御）。`.gitleaks.toml` は `NEXT_PUBLIC_*` placeholder を allowlist。GitHub native Secret Scanning / Push Protection は free plan の private repo では使えないため gitleaks が唯一の検知層 |
 | **Env file 規約** | `.env.production` は `NEXT_PUBLIC_*` のみ（client 公開前提値）。service_role / DB password / admin token 系は GH Actions secrets / Vercel env のみ |
 | **Silent-fail monitoring** | 会員申請 + フィードバックの通知経路全段を `health-check.yml` で hourly 検査 + GAS `hourlyHealthCheck` から内側 probe、異常時は admin へ Gmail |
+| **Dependency vulnerability management** | 2026-06-10 全数監査 (姉妹サイトと同時): 本番依存パッケージを OSV.dev (Google 脆弱性DB) で照会し、next 15.5.14 の既知脆弱性 14 件 (HIGH: middleware/proxy バイパス GHSA-267c-6grr-h53f / GHSA-26hh-7cqf-hhc6 / GHSA-492v-c6pp-mqqv、DoS、SSRF ほか) を検出 → 即日 next 15.5.18 / ws 8.21.0 へ bump。本サイトは認可を middleware で行うためバイパス系は直撃構成だった (データ自体は RLS の defense-in-depth で保護)。残存は next 内部 pin の postcss 8.4.31 のみ (moderate・ビルド時のみ使用で実行時露出なし) |
+| **Live-tested access control** | 2026-06-10 実環境検証: SET ROLE anon で user_roles / players は 0 行 (公開テーブルのみ可視)、書き込みポリシーは全て役割ゲート (匿名開放ゼロ)、匿名アクセスで /players・/admin・/scorebooks は 307 → /login、管理系 API は 401。storage は members-docs / scorebooks が private、photos / videos のみ public (設計通り) |
 
 ---
 
