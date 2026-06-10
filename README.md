@@ -343,6 +343,8 @@ All workflows use **minimal `permissions`** (principle of least privilege).
 | **Silent-fail monitoring** | 会員申請 + フィードバックの通知経路全段を `health-check.yml` で hourly 検査 + GAS `hourlyHealthCheck` から内側 probe、異常時は admin へ Gmail |
 | **Dependency vulnerability management** | 2026-06-10 全数監査 (姉妹サイトと同時): 本番依存パッケージを OSV.dev (Google 脆弱性DB) で照会し、next 15.5.14 の既知脆弱性 14 件 (HIGH: middleware/proxy バイパス GHSA-267c-6grr-h53f / GHSA-26hh-7cqf-hhc6 / GHSA-492v-c6pp-mqqv、DoS、SSRF ほか) を検出 → 即日 next 15.5.18 / ws 8.21.0 へ bump。本サイトは認可を middleware で行うためバイパス系は直撃構成だった (データ自体は RLS の defense-in-depth で保護)。残存は next 内部 pin の postcss 8.4.31 のみ (moderate・ビルド時のみ使用で実行時露出なし) |
 | **Live-tested access control** | 2026-06-10 実環境検証: SET ROLE anon で user_roles / players は 0 行 (公開テーブルのみ可視)、書き込みポリシーは全て役割ゲート (匿名開放ゼロ)、匿名アクセスで /players・/admin・/scorebooks は 307 → /login、管理系 API は 401。storage は members-docs / scorebooks が private、photos / videos のみ public (設計通り) |
+| **Membership pipeline privacy** | 2026-06-11: 会員申請パイプラインから個人名を全面排除。PR タイトル・commit message・公開 Actions ログを背番号表記 (背番号未記入は UID 8桁) に修正し、過去の public run ログ 24 件を削除、既存 PR 9 件の title/body も背番号表記に改名。申請者氏名は Supabase の会員管理 (display_name) のみに保存され Git/公開面に残らない |
+| **Feedback image privacy** | 2026-06-11: feedback 添付画像の保存先を public repo から **private Supabase Storage bucket `feedback-images`** + 10 年署名付き URL へ移行。ファイル名はタイムスタンプ+乱数+ASCII 化で投稿者名を含まない。E2E 検証済 (署名 URL 200 / token 無し 400 / public repo への新規追加ゼロ) |
 
 ---
 
