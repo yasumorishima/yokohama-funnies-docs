@@ -144,7 +144,7 @@ Google Form submit (氏名 + 背番号)
 - Google login required (Supabase Auth)
 - Issue auto-created on the private repo so the team can triage on GitHub
 
-### Per-Game Stats & Scorebook OCR
+### Per-Game Stats & Scorebook Images
 
 紙のスコアブックを起点に、試合別の打撃・投手成績を DB 化して集計表示する仕組み。
 
