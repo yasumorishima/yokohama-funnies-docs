@@ -352,6 +352,7 @@ All workflows use **minimal `permissions`** (principle of least privilege).
 
 - Mobile-first responsive design (base font 18px, line-height 1.7)
 - **PC viewport typography scaling**: `sm:` / `md:` / `lg:` breakpoints で text size を段階的に拡大（mobile/sm の見え方は keep）。公開全 page を PC ブラウザで可読性のあるサイズに調整
+- **Font size toggle (文字サイズ切替)**: ヘッダーに「大きく / 標準」トグルを常時表示。`html[data-font-size="large"] { font-size: 112.5% }` で rem ベースの文字・余白・アイコンをサイト全体で一括ズーム。localStorage 永続化 + `<head>` inline script で初回ペイント前に適用（フラッシュ防止）、body は px→rem 化で既定サイズは従来値（mobile 18px / desktop 16px）と厳密一致
 - All touch targets >= 44px
 - Dark mode with full color sweep (league badge sky-200, tournament badge rose-200, attendance pill emerald/amber/rose-200, calendar 土曜 + 天気 min temp blue-300 で navy bg 上の視認性確保)
 - `aria-label` on result badges (Win/Loss/Draw)
