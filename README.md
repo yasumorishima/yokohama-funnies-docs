@@ -18,7 +18,7 @@
 | Storage | **Supabase Storage** (photos + scorebook images, client-side resize) |
 | Hosting | **Vercel** (Hobby plan, git push auto-deploy) |
 | CI/CD | **GitHub Actions** (会員申請 / role sync / monitoring は public repo [yokohama-funnies-public-cron](https://github.com/yasumorishima/yokohama-funnies-public-cron) で実行 — private repo の GHA quota 枯渇対策、GitHub App installation token で private repo に push/PR back) |
-| Analytics | **Google Analytics 4** (`G-PJQFLXL3P6`, Cookie consent gate) |
+| Analytics | **Google Analytics 4** (`G-PJQFLXL3P6`)。オプトアウト方式（既定で計測 ON・同意ポップアップなし、プライバシー / 設定の「計測を止める」トグルで停止可）。**公開ダッシュボード `/insights`**（GA4 Data API・日別 PV / 人気ページ〔試合詳細は実名解決〕/ 参照元 / 端末を inline SVG 表示、ISR 1h、cookieless） |
 | Weather | **Open-Meteo API** (free, no API key, 30-min ISR cache + external cron warm) |
 | Testing | **Playwright** (e2e: skeleton / navigation / weather / screenshot) |
 | GitHub integration | **GitHub App `yokohama-funnies-bot`** (Installation token via `@octokit/auth-app`, PAT-less) |
@@ -341,7 +341,7 @@ All workflows use **minimal `permissions`** (principle of least privilege).
 | **Auth callback validation** | Open redirect prevention in `/auth/callback` |
 | **Workflow permissions** | Every GitHub Actions workflow declares minimal permissions |
 | **Privacy-first membership** | Personal names never appear in Git history (`config/members.yml` stores UID + 背番号 only) |
-| **Cookie consent** | GA4 script loads only after explicit user consent |
+| **アクセス解析** | オプトアウト方式（既定 ON・外部送信内容を privacy に開示・利用者はいつでも計測停止可能）。個人を直接特定する情報は送信しない |
 | **GitHub App authentication** | `yokohama-funnies-bot` GitHub App の Installation token 方式（classic PAT を保持しない）。token は 1h 自動更新、permission は narrow scope |
 | **Secret centralization** | GAS は Vercel proxy に HMAC `FEEDBACK_GAS_SECRET` で authenticate するのみで GitHub 認証情報を保持しない。サーバ側クレデンシャルは Vercel env (Sensitive) に集約 |
 | **Audit log tamper resistance** | `audit_logs_insert` RLS policy uses `WITH CHECK (user_id = auth.uid())`。`log_user_roles_change` trigger は `auth.uid() IS NOT NULL` guard を持ち、anon-path の OAuth signup INSERT を audit-log RLS で block しない（migration 047 で「Database error saving new user」を完全 fix） |
@@ -371,7 +371,8 @@ All workflows use **minimal `permissions`** (principle of least privilege).
 - **LINE browser support**: Auto-detect LINE in-app browser on login — redirects to external browser for Google OAuth compatibility
 - **Safe delete UX**: Delete buttons hidden from list views, accessible only after entering edit mode, always followed by a confirmation modal
 - **Scroll-to-top fix**: `window.scrollTo({ behavior: 'auto' })` 明示で PageTransition remount と scroll-behavior:smooth の干渉を解消
-- Cookie consent banner (GA4 loads only after consent)
+- アクセス解析はオプトアウト方式（同意ポップアップ廃止・GA4 は既定で計測・プライバシー / 設定ページから停止可能）
+- 公開アクセス解析ページ `/insights`（GA4 Data API・日別 PV / 人気ページ / 参照元 / 端末）
 - Error boundaries (`error.tsx` / `global-error.tsx`)
 
 ---
@@ -397,7 +398,8 @@ Public
 
 Auth / Member
   /login                   Google OAuth login
-  /account                 Profile (背番号 input), cookie settings
+  /account                 Profile (背番号 input), analytics opt-out
+  /insights                Public access-analytics dashboard (GA4 Data API)
   /bookmarks               Saved articles
   /attendances             Attendance response
   /members-only            Hub
