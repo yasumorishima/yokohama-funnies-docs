@@ -445,4 +445,6 @@ Admin
 
 ## Top Page Composition
 
-Hero → CONTENTS ナビバンド (5 色 card-style + 横スライド snap) → 横浜スタジアム 3 日天気 (M/D + 曜日 + 降水% + 累計 N.Nmm + 雨強度別アイコン、クリックで /weather に遷移) → チームの一言 → № 01 ABOUT US → № 02 MOMENTS (写真) → № 03 NEWS → № 04 UP NEXT (Google Calendar 風 月間ビュー) → № 05 RECORD → № 06 ROSTER (公開選手名簿)
+Hero → トップ通知バー (最新の新着情報1件、押下で #news へジャンプ) → CONTENTS ナビバンド (5 色 card-style + 横スライド snap) → 横浜スタジアム 3 日天気 (M/D + 曜日 + 降水% + 累計 N.Nmm + 雨強度別アイコン、クリックで /weather に遷移) → チームの一言 → № 01 ABOUT US → № 02 MOMENTS (写真) → № 03 NEWS → № 04 UP NEXT (Google Calendar 風 月間ビュー) → № 05 RECORD → № 06 ROSTER (公開選手名簿)
+
+なお試合予定 (一覧・詳細) には試合当日の天気を「試合日」ラベル付きで表示し、試合の 16 日前から出る (Open-Meteo 無料枠上限)。会場座標は球場マスタ (`lib/venues.ts`、本拠地の清水ヶ丘公園を含む) で解決する。
