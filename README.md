@@ -1,6 +1,6 @@
 # Yokohama Funnies - 横浜ファニーズ 公式サイト
 
-草野球チーム「横浜ファニーズ」の公式Webアプリケーション。試合結果・予定管理、選手名簿、試合別の打撃・投手成績、出欠管理、写真ギャラリーなどを、5段階の権限制御のもとで運用しています。minami-baseball-ob（横浜市立南高校 野球部OB会サイト）を template として 2026-05-10 から構築。
+草野球チーム「横浜ファニーズ」の公式Webアプリケーション。試合結果・予定管理、選手名簿、試合別の打撃・投手成績、出欠管理、オーダー表（打順表）、写真ギャラリーなどを、5段階の権限制御のもとで運用しています。minami-baseball-ob（横浜市立南高校 野球部OB会サイト）を template として 2026-05-10 から構築。
 
 **https://yokohama-funnies.vercel.app/** | ソースコード: private | 公開 cron workflow: [yokohama-funnies-public-cron](https://github.com/yasumorishima/yokohama-funnies-public-cron)
 
@@ -101,7 +101,7 @@ Middleware + RLS の2層で認可を実施。全操作を権限に応じて制�
 |-------|------|--------|
 | 1 | Guest | Public pages |
 | 2 | `viewer` | Logged in, awaiting approval |
-| 3 | `member` | + Member-only pages (選手成績 / 出欠 / 会員専用投稿 / スコアブック閲覧) |
+| 3 | `member` | + Member-only pages (選手成績 / 出欠 / オーダー表 / 会員専用投稿 / スコアブック閲覧) |
 | 4 | `editor` | + Content CRUD (8 edit pages + inline editing) |
 | 5 | `admin` | + User management, audit logs, trash |
 
@@ -169,6 +169,13 @@ Google Form submit (氏名 + 背番号)
 - **本格運用前（仮表示）**: 出欠の各入口（出欠一覧 / 予定 / 試合詳細）に「本格運用前（仮表示）」を明示。正式公開は **2026年7月** 予定、当面の実出欠はサークルスクエア
 - `attendances` table は `schedule_id + user_id` UNIQUE、集計 view `attendances_with_user`
 
+### Lineup / オーダー表 (打順表)
+
+- 試合詳細ページ内で editor 以上が**打順（守備位置つき）+ 控え + 助っ人**のオーダー表を作成・共有（試合ごと 1 枚、`lineups` の `schedule_id` UNIQUE、`starters` / `bench` は JSONB）
+- 打順は可変枠（既定 9、追加 / 削除 / 並べ替え）+ 守備位置（投捕一二三遊左中右指）。控えは別枠。**助っ人は名簿外でも自由入力**（名前 + 背番号を保持）。選手選択は当該試合の**出欠 ○ 回答者を先頭表示**
+- **下書き / 公開トグル**（`is_published`）で試合直前まで準備 → 会員に共有。下書きは RLS で会員から不可視
+- **共有ボタン**で打順をプレーンテキスト化し `navigator.share`（モバイルは LINE 等の共有シート）で共有
+
 ### Content Management (Custom CMS)
 
 外部CMSを使わず、**Supabase + Next.js で構築した独自CMS**。ソフトデリート、変更履歴、監査ログを標準装備。
@@ -231,7 +238,7 @@ Open-Meteo API（無料）を使った球場別天気予報。予定との連動
 
 ## Database Design
 
-19 main/utility tables + 5 history tables + views, all protected by Row-Level Security.
+20 main/utility tables + 5 history tables + views, all protected by Row-Level Security.
 
 ```
 user_roles ----< results         (author)
@@ -269,6 +276,7 @@ Storage buckets:
 | `game_player_pitching` | Per-game pitching (1 game x 1 pitcher = 1 row, IP/R/H/K/BB/W/L) |
 | `at_bats` / `pitching_logs` | Per-PA / per-pitch microdata (reserved, currently unused) |
 | `attendances` | Attendance (○/△/×, schedule_id + user_id UNIQUE) |
+| `lineups` | Batting order sheet (打順表, schedule_id UNIQUE, starters/bench JSONB, draft/publish) |
 | `results` | Game results (ワイワイリーグ / 区民大会 / 練習試合 / その他). Soft delete |
 | `schedule` | Events (games, practice, social). Soft delete |
 | `announcements` | News posts. Soft delete |
