@@ -82,7 +82,7 @@
 | Page routes | <!--stat:pages-->43<!--/stat--> |
 | API routes | <!--stat:apis-->8<!--/stat--> |
 | Reusable components | <!--stat:components-->53<!--/stat--> |
-| DB tables (+ history) | <!--stat:tables_main-->21<!--/stat--> + <!--stat:tables_hist-->5<!--/stat--> |
+| DB tables (+ history) | <!--stat:tables_main-->26<!--/stat--> + <!--stat:tables_hist-->5<!--/stat--> |
 | DB migrations | <!--stat:migrations-->53<!--/stat--> |
 | GitHub Actions workflows | <!--stat:workflows-->4<!--/stat--> |
 | e2e tests | 18 |
@@ -176,11 +176,18 @@ Google Form submit (氏名 + 背番号)
 - **下書き / 公開トグル**（`is_published`）で試合直前まで準備 → 会員に共有。下書きは RLS で会員から不可視
 - **共有ボタン**で打順をプレーンテキスト化し `navigator.share`（モバイルは LINE 等の共有シート）で共有
 
+### Survey (アンケート)
+
+- 会員アンケート機能。`/members-only/surveys` 一覧 + 詳細で member 以上が回答、editor 以上が `/edit/surveys` で作成 / 編集 / 論理削除
+- **単一 / 複数選択**両対応 + コメント欄（任意）、回答期間（`starts_at` / `ends_at`、JST）、回答者名の公開 / 回答内容の公開 / 回答変更可否を**アンケートごとにトグル**設定
+- 回答は本人 1 行（`survey_responses` の `survey_id + user_id` UNIQUE）、選択肢は `survey_response_options` で複数保持。集計（選択肢ごとの件数 / %）と回答一覧を表示
+- **非公開トグルは RLS で強制**: `responses_public=false` の他人回答は read 不可、`names_public=false` は集計 view が氏名 / 背番号を NULL 化（editor 以上は常に閲覧可）
+
 ### Content Management (Custom CMS)
 
 外部CMSを使わず、**Supabase + Next.js で構築した独自CMS**。ソフトデリート、変更履歴、監査ログを標準装備。
 
-- **8 editor pages** (3 groups: 試合関連 / チーム情報 / その他): Results, Schedule, Announcements, Media, Game Stats, Manager Comment, Team Message, Account
+- **9 editor pages** (3 groups: 試合関連 / チーム情報 / その他): Results, Schedule, Announcements, Survey, Media, Game Stats, Manager Comment, Team Message, Account
 - **Inline editing**: Edit content directly on detail pages (no page transition)
 - **Update tracking**: All tables have `updated_by` (auto-set by DB trigger via `auth.uid()`)
 - **Soft delete + 7-day trash**: Auto-purge via scheduled GitHub Actions
@@ -238,7 +245,7 @@ Open-Meteo API（無料）を使った球場別天気予報。予定との連動
 
 ## Database Design
 
-20 main/utility tables + 5 history tables + views, all protected by Row-Level Security.
+26 main/utility tables + 5 history tables + views, all protected by Row-Level Security.
 
 ```
 user_roles ----< results         (author)
@@ -277,6 +284,8 @@ Storage buckets:
 | `at_bats` / `pitching_logs` | Per-PA / per-pitch microdata (reserved, currently unused) |
 | `attendances` | Attendance (○/△/×, schedule_id + user_id UNIQUE) |
 | `lineups` | Batting order sheet (打順表, schedule_id UNIQUE, starters/bench JSONB, draft/publish) |
+| `surveys` / `survey_options` | Member surveys + choice options (single/multi, 回答期間, 公開トグル) |
+| `survey_responses` / `survey_response_options` | Survey responses (本人 1 行 survey_id + user_id UNIQUE) + selected options (multi) |
 | `results` | Game results (ワイワイリーグ / 区民大会 / 練習試合 / その他). Soft delete |
 | `schedule` | Events (games, practice, social). Soft delete |
 | `announcements` | News posts. Soft delete |
@@ -296,6 +305,7 @@ Storage buckets:
 | `season_aggregates_batting` / `season_aggregates_pitching` | per-game データの無い年度のシーズン通算 (2024) |
 | `players_public` | Anon-readable roster (sensitive cols filtered, active + non-deleted + non-guest) |
 | `attendances_with_user` | Attendance joined with member display name |
+| `survey_responses_with_user` | Survey responses + 回答者名 / 背番号 (names_public=false で NULL 化) |
 | `*_with_author` | Content joined with author display name + `updated_by` |
 
 ### DB Functions & Triggers
