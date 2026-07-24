@@ -175,6 +175,7 @@ Google Form submit (氏名 + 背番号)
 - 打順は可変枠（既定 9、追加 / 削除 / 並べ替え）+ 守備位置（投捕一二三遊左中右指）。控えは別枠。**助っ人は名簿外でも自由入力**（名前 + 背番号を保持）。選手選択は当該試合の**出欠 ○ 回答者を先頭表示**
 - **下書き / 公開トグル**（`is_published`）で試合直前まで準備 → 会員に共有。下書きは RLS で会員から不可視
 - **共有ボタン**で打順をプレーンテキスト化し `navigator.share`（モバイルは LINE 等の共有シート）で共有
+- **公開すると home「新着情報」に teaser 表示**（`⚾ オーダー表: vs ○○戦`、クリックで試合詳細へ）。`lineup_news` view 経由で非機密列のみ anon 公開、打順の中身は member ゲートのまま。監督メッセージと同型
 
 ### Survey (アンケート)
 
@@ -306,6 +307,8 @@ Storage buckets:
 | `players_public` | Anon-readable roster (sensitive cols filtered, active + non-deleted + non-guest) |
 | `attendances_with_user` | Attendance joined with member display name |
 | `survey_responses_with_user` | Survey responses + 回答者名 / 背番号 (names_public=false で NULL 化) |
+| `lineup_news` | Anon teaser of published lineups (schedule_id/opponent/game_date, starters/bench 除外, home 新着情報用) |
+| `manager_comment_news` | Anon teaser of manager comments (body/title 除外, home 新着情報用) |
 | `*_with_author` | Content joined with author display name + `updated_by` |
 
 ### DB Functions & Triggers
