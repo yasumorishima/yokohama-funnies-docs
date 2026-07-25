@@ -166,7 +166,8 @@ Google Form submit (氏名 + 背番号)
 ### Attendance Management
 
 - 出欠回答ページ + 試合詳細ページ内の出欠 toggle（○/△/×、member 以上、集計と名簿表示）
-- **本格運用前（仮表示）**: 出欠の各入口（出欠一覧 / 予定 / 試合詳細）に「本格運用前（仮表示）」を明示。正式公開は **2026年7月** 予定、当面の実出欠はサークルスクエア
+- **回答は承認済み会員（member 以上）のみ**: RLS `attendances_insert_self` / `attendances_update_self` が `(auth.uid() = user_id AND is_member_or_above()) OR is_editor_or_above()`。新規 Google ログインは `viewer`（承認待ち）で入るため、承認前は回答 UI を出さず「会員として承認されると回答できます」を表示。editor / admin は代理入力のため無条件。閲覧側 `attendances_read` も member 以上
+- **2026-09-01 (JST) から本格運用（自動切替）**: 基準日は `lib/utils.ts` の `ATTENDANCE_CUTOVER_JST` 1 箇所。①試合詳細の「出欠はサークルスクエアが本番です」案内は**試合日基準**（`isCircleSquarePrimaryFor(game_date)`）で、9 月以降の試合には最初から出さない ②出欠一覧の併用案内は一覧に 8 月までの試合が残っている間だけ表示 ③予定ページの「本格運用前（仮表示）」バッジは今日基準で 9/1 に消える。未ログイン時は「ログインして回答」ボタン（`/login?redirect=...`）
 - `attendances` table は `schedule_id + user_id` UNIQUE、集計 view `attendances_with_user`
 
 ### Lineup / オーダー表 (打順表)
@@ -205,6 +206,7 @@ Google Form submit (氏名 + 背番号)
 - **Schedule**: 上記 + 練習 / 飲み会・懇親会
 - **Result filter** (`/results`): すべて / ワイワイ / 区民大会 / 練習試合 / その他
 - 試合結果ページに「🏆 区民大会公式 試合結果ページ（横浜南区野球協会）↗」 外部リンク
+- **中止は赤い打消し線 + 赤字「中止」**: `schedule.status = '中止'` / `results.result = '中止'` の行は題名（vs 相手 / 種別）に赤い打消し線を引き、直後に赤字で「中止」を添える（予定一覧 / 予定詳細 / 出欠一覧 / 戦績一覧 / 戦績詳細 / home の戦績カード）。home の月カレンダーはセル幅が狭く文字を足すと相手名が切れるため、チップ自体を赤系に変える。右上の「中止」バッジは併置のまま残し、色以外の手がかりも確保。中止は戦績集計から除外
 
 ### イニング別スコアボード (Line Score)
 
