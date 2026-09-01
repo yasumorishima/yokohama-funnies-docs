@@ -77,13 +77,13 @@
 <!-- stats-start (auto-updated by GitHub Actions) -->
 | Metric | Count |
 |--------|-------|
-| TypeScript/TSX files | <!--stat:ts_files-->155<!--/stat--> |
-| Lines of code | <!--stat:loc-->~18000<!--/stat--> |
-| Page routes | <!--stat:pages-->47<!--/stat--> |
-| API routes | <!--stat:apis-->9<!--/stat--> |
-| Reusable components | <!--stat:components-->56<!--/stat--> |
+| TypeScript/TSX files | <!--stat:ts_files-->165<!--/stat--> |
+| Lines of code | <!--stat:loc-->~23100<!--/stat--> |
+| Page routes | <!--stat:pages-->48<!--/stat--> |
+| API routes | <!--stat:apis-->10<!--/stat--> |
+| Reusable components | <!--stat:components-->61<!--/stat--> |
 | DB tables (+ history) | <!--stat:tables_main-->26<!--/stat--> + <!--stat:tables_hist-->5<!--/stat--> |
-| DB migrations | <!--stat:migrations-->56<!--/stat--> |
+| DB migrations | <!--stat:migrations-->60<!--/stat--> |
 | GitHub Actions workflows | <!--stat:workflows-->4<!--/stat--> |
 | e2e tests | 18 |
 | Hosting cost | ¥0 / month |
