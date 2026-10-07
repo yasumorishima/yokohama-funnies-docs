@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="400" viewBox="0 0 880 400" font-family="-apple-system,Segoe UI,Hiragino Sans,Noto Sans JP,Yu Gothic,sans-serif">
+<rect width="880" height="400" rx="8" fill="#ffffff"/>
+<text x="24" y="38" font-size="20" font-weight="700" fill="#1f2328">9月は「リンク経由」からの割合が8月より32ポイント減った</text>
+<text x="24" y="64" font-size="14" fill="#59636e">10月は8日まで（色を抑えた棒）</text>
+<rect x="64" y="80" width="14" height="14" rx="3" fill="#2a78d6"/>
+<text x="84" y="92" font-size="14" fill="#1f2328">直接アクセス</text>
+<rect x="194" y="80" width="14" height="14" rx="3" fill="#eb6834"/>
+<text x="214" y="92" font-size="14" fill="#1f2328">検索</text>
+<rect x="268" y="80" width="14" height="14" rx="3" fill="#1baf7a"/>
+<text x="288" y="92" font-size="14" fill="#1f2328">SNS</text>
+<rect x="338" y="80" width="14" height="14" rx="3" fill="#eda100"/>
+<text x="358" y="92" font-size="14" fill="#1f2328">リンク経由</text>
+<rect x="454" y="80" width="14" height="14" rx="3" fill="#e87ba4"/>
+<text x="474" y="92" font-size="14" fill="#1f2328">その他</text>
+<line x1="64" y1="356.0" x2="860" y2="356.0" stroke="#e5e7eb"/>
+<text x="54" y="361.0" font-size="14" text-anchor="end" fill="#59636e">0%</text>
+<line x1="64" y1="234.0" x2="860" y2="234.0" stroke="#e5e7eb"/>
+<text x="54" y="239.0" font-size="14" text-anchor="end" fill="#59636e">50%</text>
+<line x1="64" y1="112.0" x2="860" y2="112.0" stroke="#e5e7eb"/>
+<text x="54" y="117.0" font-size="14" text-anchor="end" fill="#59636e">100%</text>
+<text x="130.3" y="384" font-size="14" text-anchor="middle" fill="#59636e">2026/5</text>
+<rect x="89.2" y="314.6" width="82.3" height="40.4" fill="#2a78d6"><title>2026-05 直接アクセス: 17%</title></rect>
+<text x="130.3" y="339.8" font-size="14" text-anchor="middle" fill="#111111">17%</text>
+<rect x="89.2" y="113.0" width="82.3" height="199.6" fill="#eda100"><title>2026-05 リンク経由: 83%</title></rect>
+<text x="130.3" y="217.8" font-size="14" text-anchor="middle" fill="#111111">83%</text>
+<text x="263.0" y="384" font-size="14" text-anchor="middle" fill="#59636e">6月</text>
+<rect x="221.9" y="335.6" width="82.3" height="19.4" fill="#2a78d6"><title>2026-06 直接アクセス: 9%</title></rect>
+<rect x="221.9" y="331.3" width="82.3" height="2.3" fill="#eb6834"><title>2026-06 検索: 2%</title></rect>
+<rect x="221.9" y="113.0" width="82.3" height="216.3" fill="#eda100"><title>2026-06 リンク経由: 89%</title></rect>
+<text x="263.0" y="226.2" font-size="14" text-anchor="middle" fill="#111111">89%</text>
+<text x="395.7" y="384" font-size="14" text-anchor="middle" fill="#59636e">7月</text>
+<rect x="354.5" y="311.6" width="82.3" height="43.4" fill="#2a78d6"><title>2026-07 直接アクセス: 19%</title></rect>
+<text x="395.7" y="338.3" font-size="14" text-anchor="middle" fill="#111111">19%</text>
+<rect x="354.5" y="113.0" width="82.3" height="196.6" fill="#eda100"><title>2026-07 リンク経由: 81%</title></rect>
+<text x="395.7" y="216.3" font-size="14" text-anchor="middle" fill="#111111">81%</text>
+<text x="528.3" y="384" font-size="14" text-anchor="middle" fill="#59636e">8月</text>
+<rect x="487.2" y="294.2" width="82.3" height="60.8" fill="#2a78d6"><title>2026-08 直接アクセス: 26%</title></rect>
+<text x="528.3" y="329.6" font-size="14" text-anchor="middle" fill="#111111">26%</text>
+<rect x="487.2" y="113.0" width="82.3" height="179.2" fill="#eda100"><title>2026-08 リンク経由: 74%</title></rect>
+<text x="528.3" y="207.6" font-size="14" text-anchor="middle" fill="#111111">74%</text>
+<text x="661.0" y="384" font-size="14" text-anchor="middle" fill="#59636e">9月</text>
+<rect x="619.9" y="221.8" width="82.3" height="133.2" fill="#2a78d6"><title>2026-09 直接アクセス: 55%</title></rect>
+<text x="661.0" y="293.4" font-size="14" text-anchor="middle" fill="#111111">55%</text>
+<rect x="619.9" y="218.3" width="82.3" height="1.6" fill="#eb6834"><title>2026-09 検索: 1%</title></rect>
+<rect x="619.9" y="114.2" width="82.3" height="102.1" fill="#eda100"><title>2026-09 リンク経由: 43%</title></rect>
+<text x="661.0" y="170.2" font-size="14" text-anchor="middle" fill="#111111">43%</text>
+<rect x="619.9" y="113.0" width="82.3" height="0.5" fill="#e87ba4"><title>2026-09 その他: 1%未満</title></rect>
+<text x="793.7" y="384" font-size="14" text-anchor="middle" fill="#59636e">10月</text>
+<rect x="752.5" y="230.9" width="82.3" height="124.1" fill="#2a78d6" opacity="0.55"><title>2026-10 直接アクセス: 52%</title></rect>
+<text x="793.7" y="298.0" font-size="14" text-anchor="middle" fill="#111111">52%</text>
+<rect x="752.5" y="226.9" width="82.3" height="2.1" fill="#eb6834" opacity="0.55"><title>2026-10 検索: 2%</title></rect>
+<rect x="752.5" y="125.2" width="82.3" height="99.7" fill="#eda100" opacity="0.55"><title>2026-10 リンク経由: 42%</title></rect>
+<text x="793.7" y="180.0" font-size="14" text-anchor="middle" fill="#111111">42%</text>
+<rect x="752.5" y="113.0" width="82.3" height="10.2" fill="#e87ba4" opacity="0.55"><title>2026-10 その他: 5%</title></rect>
+</svg>
