@@ -167,12 +167,13 @@ Google Form submit (氏名 + 背番号)
 紙のスコアブックを起点に、試合別の打撃・投手成績を DB 化して集計表示する仕組み。
 
 - **Per-game batting / pitching tables**: `game_player_batting`（1 試合 1 選手 = 1 row、PA/AB/H/2B/3B/HR/RBI/BB+HB/犠/盗/三振）と `game_player_pitching`（IP/R/H/K/BB/W/L）が `/members-only/stats` の primary source。試合別に分解できない年度は `season_aggregates_batting` / `season_aggregates_pitching`（`season_year` + `player_id` 単位のシーズン通算）で補完（2024 シーズン = 打撃 19 名 + 投手 7 名）
-- **Aggregate views**: `player_batting_stats`（打率 / 出塁率 / 長打率）+ `player_pitching_stats`（ERA / WHIP / K9）、season filter は client 側
+- **打順・登板順**（2026-10-18）: `game_player_batting.batting_order`（打順の枠・空欄＝不明）/ `batting_sub`（同じ枠の出場順・0＝先発）と `game_player_pitching.pitching_order`（登板順・1＝先発）。試合結果ページの試合別成績は左端に打順（枠の先頭の人だけ数字）を出して打順順に並べ、投手は登板順。順番が未入力の行は背番号順で末尾（`lib/stats-order.ts`）。編集フォームに 打順 / 交代 / 登板 の入力欄（範囲・重複チェックつき）
+- **通算・シーズン集計**: 試合ごとの成績と、試合ごとの記録が無い年のシーズン集計をアプリ側で足す（会員の選手成績ページ・選手ページ・チーム成績で共通）。未公開シーズンは admin 以外の集計に入れない。率は分母ゼロなら —（打席に立っていない人の打率を .000 と出さない）、失点率と K/7 は 1 試合 7 回で換算
 - **Editor 手入力 UI** `/edit/game-stats` (hub) + `/edit/game-stats/[result_id]`: 上半分にスコアブック画像、下半分に打撃 / 投手タブ + 選手 picker + inline input + bulk UPSERT。mobile (≤640px) は 1 選手 = 1 card。data 整合性 guard（`2B+3B+HR > H` や `AB > PA` を throw）
 - **Scorebook viewer**: private bucket `scorebooks/<game_date>/*` convention、admin client で list + 1h signed URL、member+ は試合詳細 `/results/[id]` で画像を inline 閲覧。editor は同 page で 90°/180° step 回転（sharp 経由 API `/api/scorebooks/rotate`）+ client upload UI（multi file / 10MB 上限）
 - **Auto-rotate on upload**: editor がアップした画像は Storage 直アップ後に `/api/scorebooks/normalize`（sharp）が EXIF 正規化＋縦向きなら 90° 回転で横向き（既存の 3300×2550 に統一）へ自動整正。既に横向きなら skip。撮影向きに依存せず常に横向きで保存される（手動回転は override として存置）
 - **Scorebook ingestion**: companion repo `baseball-scorebook-ocr`（private R&D）+ 既存スプレッドシートからの移行
-- **Stats page** `/members-only/stats`: 打撃 / 投手タブ + 年度フィルタ（全年 / 2025 / 2024）+ sortable headers。打撃は全選手表示（0 打席含む、休部は grayed-out）、投手は登板選手のみ。12 月の試合は翌年 season 扱い。**規定打席（チーム試合数×1）到達者の打率・OPS（投手は防御率・WHIP）をアクセント色で強調**。試合別データの無い年度（2024）は `season_aggregates_*` の通算値を per-game の年度とシームレスに合算
+- **Stats page** `/members-only/stats`: 打撃 / 投手タブ + 年度フィルタ（全年 / 2025 / 2024）+ sortable headers。打撃は全選手表示（0 打席含む、休部は grayed-out）、投手は登板選手のみ。シーズンは試合ごとの `results.season`（空欄なら試合日の年）。**規定打席（チーム試合数×1）到達者の打率・OPS（投手は失点率・WHIP）をアクセント色で強調**。試合別データの無い年度（2024）は `season_aggregates_*` の通算値を per-game の年度とシームレスに合算
 
 ### Roster & Public ROSTER Section
 
@@ -282,7 +283,7 @@ players  (背番号 UNIQUE / bats/throws/status / is_guest / photo_path / commen
     |  players_public (view: anon-readable roster, sensitive cols filtered)
     +--< game_player_batting     (1 game x 1 player = 1 row, 14 cols)
     +--< game_player_pitching    (1 game x 1 pitcher = 1 row)
-    |        player_batting_stats / player_pitching_stats (aggregate views)
+    |        lib/career-stats.ts (game_player_* + season_aggregates_*)
     +--< attendances             (○/△/×, schedule_id + user_id UNIQUE)
     at_bats / pitching_logs      (per-PA / per-pitch microdata, reserved)
 
@@ -321,8 +322,7 @@ Storage buckets:
 
 | View | Purpose |
 |------|---------|
-| `player_batting_stats` | Aggregate batting (打率 / 出塁率 / 長打率) |
-| `player_pitching_stats` | Aggregate pitching (ERA / WHIP / K9) |
+| `player_batting_stats` / `player_pitching_stats` | 旧集計 view（元の `at_bats` / `pitching_logs` が空のため未使用。集計はアプリ側で game_player_* から作る） |
 | `season_aggregates_batting` / `season_aggregates_pitching` | per-game データの無い年度のシーズン通算 (2024) |
 | `players_public` | Anon-readable roster (sensitive cols filtered, active + non-deleted + non-guest) |
 | `attendances_with_user` | Attendance joined with member display name |
