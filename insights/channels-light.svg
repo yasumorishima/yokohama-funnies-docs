@@ -8,12 +8,12 @@
 <text x="802" y="110" font-size="15" font-weight="700" fill="#1f2328">55%</text>
 <text x="136" y="153" font-size="15" text-anchor="end" fill="#1f2328">リンク経由</text>
 <rect x="150" y="136" width="640" height="26" rx="4" fill="#e5e7eb" opacity="0.5"/>
-<rect x="150" y="136" width="278.0" height="26" rx="4" fill="#eda100"><title>リンク経由: 43%</title></rect>
-<text x="802" y="154" font-size="15" font-weight="700" fill="#1f2328">43%</text>
+<rect x="150" y="136" width="280.1" height="26" rx="4" fill="#eda100"><title>リンク経由: 44%</title></rect>
+<text x="802" y="154" font-size="15" font-weight="700" fill="#1f2328">44%</text>
 <text x="136" y="197" font-size="15" text-anchor="end" fill="#1f2328">検索</text>
 <rect x="150" y="180" width="640" height="26" rx="4" fill="#e5e7eb" opacity="0.5"/>
-<rect x="150" y="180" width="10.8" height="26" rx="4" fill="#eb6834"><title>検索: 2%</title></rect>
-<text x="802" y="198" font-size="15" font-weight="700" fill="#1f2328">2%</text>
+<rect x="150" y="180" width="8.6" height="26" rx="4" fill="#eb6834"><title>検索: 1%</title></rect>
+<text x="802" y="198" font-size="15" font-weight="700" fill="#1f2328">1%</text>
 <text x="136" y="241" font-size="15" text-anchor="end" fill="#1f2328">その他</text>
 <rect x="150" y="224" width="640" height="26" rx="4" fill="#e5e7eb" opacity="0.5"/>
 <rect x="150" y="224" width="4.0" height="26" rx="4" fill="#e87ba4"><title>その他: 1%未満</title></rect>
