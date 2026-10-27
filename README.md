@@ -18,7 +18,7 @@
 
 <picture><source media="(prefers-color-scheme: dark)" srcset="insights/channels-monthly-dark.svg"><img src="insights/channels-monthly-light.svg" alt="月別の参照元の割合" width="100%"></picture>
 
-<sub>最終更新 2026-10-26（JST）・Google Analytics 4 の集計（サイトの [アクセス解析ページ](https://yokohama-funnies.vercel.app/insights) と同じデータの参照元を 5 つにまとめたもの）を GitHub Actions が毎日取得。</sub>
+<sub>最終更新 2026-10-27（JST）・Google Analytics 4 の集計（サイトの [アクセス解析ページ](https://yokohama-funnies.vercel.app/insights) と同じデータの参照元を 5 つにまとめたもの）を GitHub Actions が毎日取得。</sub>
 
 <!-- insights-end -->
 
