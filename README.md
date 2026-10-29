@@ -330,7 +330,7 @@ Storage buckets:
 | `lineup_news` | Anon teaser of published lineups (schedule_id/opponent/game_date, starters/bench 除外, home 新着情報用) |
 | `manager_comment_news` | Anon teaser of manager comments (body/title 除外, home 新着情報用) |
 | `schedule_news` | Anon teaser of upcoming games (notes/created_by 除外, home 新着情報用) |
-| `results_news` | Anon teaser of game results (note/inning_scores 除外, home 新着情報用) |
+| `results_news` | Anon teaser of game results (note/inning_scores 除外, home 新着情報用。新着には試合日が今年＝1〜2 月は直近 60 日も＝の試合だけ出す。過去の試合を直しても「試合結果更新」として湧かない) |
 | `*_with_author` | Content joined with author display name + `updated_by` |
 
 ### DB Functions & Triggers
