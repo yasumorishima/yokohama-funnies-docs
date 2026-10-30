@@ -4,12 +4,12 @@
 <text x="24" y="64" font-size="14" fill="#59636e">訪問（セッション）ごとに、どこから来たかを数えた割合</text>
 <text x="136" y="109" font-size="15" text-anchor="end" fill="#1f2328">直接アクセス</text>
 <rect x="150" y="92" width="640" height="26" rx="4" fill="#e5e7eb" opacity="0.5"/>
-<rect x="150" y="92" width="366.4" height="26" rx="4" fill="#2a78d6"><title>直接アクセス: 57%</title></rect>
+<rect x="150" y="92" width="362.5" height="26" rx="4" fill="#2a78d6"><title>直接アクセス: 57%</title></rect>
 <text x="802" y="110" font-size="15" font-weight="700" fill="#1f2328">57%</text>
 <text x="136" y="153" font-size="15" text-anchor="end" fill="#1f2328">リンク経由</text>
 <rect x="150" y="136" width="640" height="26" rx="4" fill="#e5e7eb" opacity="0.5"/>
-<rect x="150" y="136" width="262.3" height="26" rx="4" fill="#eda100"><title>リンク経由: 41%</title></rect>
-<text x="802" y="154" font-size="15" font-weight="700" fill="#1f2328">41%</text>
+<rect x="150" y="136" width="266.3" height="26" rx="4" fill="#eda100"><title>リンク経由: 42%</title></rect>
+<text x="802" y="154" font-size="15" font-weight="700" fill="#1f2328">42%</text>
 <text x="136" y="197" font-size="15" text-anchor="end" fill="#1f2328">検索</text>
 <rect x="150" y="180" width="640" height="26" rx="4" fill="#e5e7eb" opacity="0.5"/>
 <rect x="150" y="180" width="9.0" height="26" rx="4" fill="#eb6834"><title>検索: 1%</title></rect>
