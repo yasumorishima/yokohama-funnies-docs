@@ -10,7 +10,7 @@
 
 | 直接アクセス | リンク経由 | 検索 | その他 | SNS | スマホから |
 |---:|---:|---:|---:|---:|---:|
-| 59% | 40% | 1%未満 | 1%未満 | 0% | 95% |
+| 59% | 39% | 1%未満 | 1%未満 | 0% | 96% |
 
 <sub>直近30日の割合。参照元は訪問（セッション）ごと、スマホは閲覧ごとに数えています。</sub>
 
@@ -18,7 +18,7 @@
 
 <picture><source media="(prefers-color-scheme: dark)" srcset="insights/channels-monthly-dark.svg"><img src="insights/channels-monthly-light.svg" alt="月別の参照元の割合" width="100%"></picture>
 
-<sub>最終更新 2026-10-31（JST）・Google Analytics 4 の集計（サイトの [アクセス解析ページ](https://yokohama-funnies.vercel.app/insights) と同じデータの参照元を 5 つにまとめたもの）を GitHub Actions が毎日取得。</sub>
+<sub>最終更新 2026-11-01（JST）・Google Analytics 4 の集計（サイトの [アクセス解析ページ](https://yokohama-funnies.vercel.app/insights) と同じデータの参照元を 5 つにまとめたもの）を GitHub Actions が毎日取得。</sub>
 
 <!-- insights-end -->
 
