@@ -173,7 +173,7 @@ Google Form submit (氏名 + 背番号)
 - **Scorebook viewer**: private bucket `scorebooks/<game_date>/*` convention、admin client で list + 1h signed URL、member+ は試合詳細 `/results/[id]` で画像を inline 閲覧。editor は同 page で 90°/180° step 回転（sharp 経由 API `/api/scorebooks/rotate`）+ client upload UI（multi file / 10MB 上限）
 - **Auto-rotate on upload**: editor がアップした画像は Storage 直アップ後に `/api/scorebooks/normalize`（sharp）が EXIF 正規化＋縦向きなら 90° 回転で横向き（既存の 3300×2550 に統一）へ自動整正。既に横向きなら skip。撮影向きに依存せず常に横向きで保存される（手動回転は override として存置）
 - **Scorebook ingestion**: companion repo `baseball-scorebook-ocr`（private R&D）+ 既存スプレッドシートからの移行
-- **Stats page** `/members-only/stats`: 打撃 / 投手タブ + 年度フィルタ（全年 / 2025 / 2024）+ sortable headers。打撃は全選手表示（0 打席含む、休部は grayed-out）、投手は登板選手のみ。シーズンは試合ごとの `results.season`（空欄なら試合日の年）。**規定打席（チーム試合数×1）到達者の打率・OPS（投手は失点率・WHIP）をアクセント色で強調**。試合別データの無い年度（2024）は `season_aggregates_*` の通算値を per-game の年度とシームレスに合算
+- **Stats page** `/members-only/stats`: 打撃 / 投手タブ + 年度フィルタ（全年 / 2025 / 2024）+ 大会フィルタ（全部 / ワイワイリーグ / 区民大会 / 練習試合。年度と掛け合わせ。大会の分からない 2024 のシーズン集計は大会で絞ると入らない）+ sortable headers。打撃は全選手表示（0 打席含む、休部は grayed-out）、投手は登板選手のみ。シーズンは試合ごとの `results.season`（空欄なら試合日の年）。**規定打席（チーム試合数×1）到達者の打率・OPS（投手は失点率・WHIP）をアクセント色で強調**。試合別データの無い年度（2024）は `season_aggregates_*` の通算値を per-game の年度とシームレスに合算
 
 ### Roster & Public ROSTER Section
 
