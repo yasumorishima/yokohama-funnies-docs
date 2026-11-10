@@ -365,7 +365,7 @@ Storage buckets:
 | **Member Request PR** (public-cron) | Google Form (GAS → Vercel proxy → `repository_dispatch` to yokohama-funnies-public-cron) | GitHub App installation token を mint → private repo の `config/members.yml` を編集する PR を自動作成、admin へ Gmail 通知 |
 | **Sync Member Roles** (public-cron) | `*/5 * * * *` polling | App token で `config/members.yml`（既存ロスター）+ `config/members/<uid>.yml`（申請ごと 1 ファイル）を fetch → union → Supabase `user_roles` に diff 同期（idempotent、昇格検出時のみ GAS Gmail で承認通知）。mass-demote safety guard で誤設定時の会員一斉降格を防止 |
 | **Health Check** (public-cron, monitoring) | Hourly | 4 probe（Vercel proxy dispatch / health-check-ack freshness / GAS gas-heartbeat freshness / feedback Web App secret-match。 Google 側 transient 誤発報回避に **3 回リトライ + 単発失敗は warning のみ・secret 不一致のみ hard fail**）、異常時 admin に Gmail |
-| **Weather Warm / Schedule Fire** (public-cron) | `*/30` + 週次 | `/weather` の ISR cache を warm + 週次で `/schedule` SSR fire（Supabase auto-pause 回避、anon key 不要） |
+| **Weather Warm / Schedule Fire** (public-cron) | `*/30` + 週次 | `/weather` の ISR cache を warm + 週次で `/schedule` SSR fire（Supabase auto-pause 回避、anon key 不要）。2026-11-10 から `/schedule` は未ログインに案内だけを出すため、この fire は DB に届かない（毎日の同期・写真の物理削除が DB を使う） |
 | **Update README Stats** (public-cron) | Monthly (1st, JST 09:00) / manual | ファイル数・LOC・ページ数・table 数等を算出し `<!--stat:KEY-->` マーカーを private + docs README に同期 |
 
 All workflows use **minimal `permissions`** (principle of least privilege).
@@ -409,7 +409,7 @@ All workflows use **minimal `permissions`** (principle of least privilege).
 - All touch targets >= 44px
 - Dark mode with full color sweep (league badge sky-200, tournament badge rose-200, attendance pill emerald/amber/rose-200, calendar 土曜 + 天気 min temp blue-300 で navy bg 上の視認性確保)
 - `aria-label` on result badges (Win/Loss/Draw)
-- **CONTENTS ナビバンド**: 5 色 card-style + 横スライド snap で 5 セクション（ABOUT / MOMENTS / NEWS / UP NEXT / RECORD）へ即ジャンプ、hint label 2 段表示
+- **CONTENTS ナビバンド**: 5 色 card-style + 横スライド snap で 5 セクション（ABOUT / MOMENTS / NEWS / UP NEXT / RECORD）へ即ジャンプ、hint label 2 段表示。UP NEXT（予定）は会員にだけ出す
 - **Skeleton loading**: Suspense-based skeleton UI（layout changes auto-propagate to loading state, verified by Playwright e2e）
 - **Unsaved warning**: Click capture intercepts navigation on edit pages
 - **Share button**: Web Share API (mobile native share sheet) with LINE fallback (desktop)
@@ -493,6 +493,6 @@ Admin
 
 ## Top Page Composition
 
-Hero → トップ通知バー (最新の新着情報1件、押下で #news へジャンプ) → CONTENTS ナビバンド (5 色 card-style + 横スライド snap) → 横浜スタジアム 3 日天気 (M/D + 曜日 + 降水% + 累計 N.Nmm + 雨強度別アイコン、クリックで /weather に遷移) → チームの一言 → № 01 ABOUT US → № 02 MOMENTS (写真) → № 03 NEWS (お知らせ + 監督メッセージ + オーダー表 + 試合予定 + 試合結果を *_news view で合流。お知らせ行は複製しない) → № 04 UP NEXT (Google Calendar 風 月間ビュー・会員だけ) → № 05 RECORD → № 06 ROSTER (公開選手名簿)
+Hero → トップ通知バー (最新の新着情報1件、押下で #news へジャンプ) → CONTENTS ナビバンド (5 色 card-style + 横スライド snap) → 横浜スタジアム 3 日天気 (M/D + 曜日 + 降水% + 累計 N.Nmm + 雨強度別アイコン、クリックで /weather に遷移) → チームの一言 → № 01 ABOUT US → № 02 MOMENTS (写真) → № 03 NEWS (お知らせ + 監督メッセージ + オーダー表 + 試合予定 + 試合結果〈オーダー表・試合予定は会員だけ〉を *_news view で合流。お知らせ行は複製しない) → № 04 UP NEXT (Google Calendar 風 月間ビュー・会員だけ) → № 05 RECORD → № 06 ROSTER (公開選手名簿)
 
 なお試合予定 (一覧・詳細) には試合当日の天気を「試合日」ラベル付きで表示し、試合の 16 日前から出る (Open-Meteo 無料枠上限)。会場座標は球場マスタ (`lib/venues.ts`、本拠地の清水ヶ丘公園を含む) で解決する。
