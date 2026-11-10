@@ -53,10 +53,10 @@
 <text x="689.4" y="165.0" font-size="14" text-anchor="middle" fill="#0d1117">39%</text>
 <rect x="654.2" y="113.0" width="70.5" height="0.5" fill="#d55181"><title>2026-10 その他: 1%未満</title></rect>
 <text x="803.1" y="384" font-size="14" text-anchor="middle" fill="#9198a1">11月</text>
-<rect x="767.9" y="182.7" width="70.5" height="172.3" fill="#3987e5" opacity="0.55"><title>2026-11 直接アクセス: 71%</title></rect>
-<text x="803.1" y="273.9" font-size="14" text-anchor="middle" fill="#0d1117">71%</text>
-<rect x="767.9" y="180.2" width="70.5" height="0.5" fill="#d95926" opacity="0.55"><title>2026-11 検索: 1%</title></rect>
-<rect x="767.9" y="115.5" width="70.5" height="62.7" fill="#c98500" opacity="0.55"><title>2026-11 リンク経由: 27%</title></rect>
-<text x="803.1" y="151.9" font-size="14" text-anchor="middle" fill="#0d1117">27%</text>
+<rect x="767.9" y="184.5" width="70.5" height="170.5" fill="#3987e5" opacity="0.55"><title>2026-11 直接アクセス: 71%</title></rect>
+<text x="803.1" y="274.7" font-size="14" text-anchor="middle" fill="#0d1117">71%</text>
+<rect x="767.9" y="182.0" width="70.5" height="0.5" fill="#d95926" opacity="0.55"><title>2026-11 検索: 1%</title></rect>
+<rect x="767.9" y="115.5" width="70.5" height="64.5" fill="#c98500" opacity="0.55"><title>2026-11 リンク経由: 27%</title></rect>
+<text x="803.1" y="152.7" font-size="14" text-anchor="middle" fill="#0d1117">27%</text>
 <rect x="767.9" y="113.0" width="70.5" height="0.5" fill="#d55181" opacity="0.55"><title>2026-11 その他: 1%</title></rect>
 </svg>
