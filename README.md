@@ -224,7 +224,7 @@ Google Form submit (氏名 + 背番号)
 
 - **Results**: 公式戦 ワイワイリーグ / 公式戦 区民大会 / 練習試合 / その他
 - **Schedule**: 上記 + 練習 / 飲み会・懇親会
-- **予定は会員以上だけ**（2026-11-10）: 会員以外の人（未ログイン・承認待ち）に見せるのは新着情報（お知らせ・試合結果）・試合結果・戦績・ギャラリーまで。RLS `schedule_read` と予定を読む 3 つの view を `is_member_or_above()` で絞り、予定の一覧・詳細は会員以外に「会員限定です」の案内とログインへの導線を出す（noindex・サイトマップからも外す）。予定に紐付く写真は、取り消していない・懇親会でない予定のものだけ誰でも見られる（所有者権限の関数 `schedule_photo_visible` で予定の種別だけを判定）
+- **予定は会員以上だけ**（2026-11-10）: 会員以外の人（未ログイン・承認待ち）に見せるのは新着情報（お知らせ・試合結果）・試合結果・戦績・ギャラリーまで。RLS `schedule_read` と予定を読む 3 つの view を `is_member_or_above()` で絞り、予定の一覧・詳細（`/schedule/*`）はほかの会員ページと同じく、未ログインをログイン画面へ、承認待ちをアクセス拒否の画面へ送る（noindex・サイトマップからも外す）。予定に紐付く写真は、取り消していない・懇親会でない予定のものだけ誰でも見られる（所有者権限の関数 `schedule_photo_visible` で予定の種別だけを判定）
 - **Result filter** (`/results`): すべて / ワイワイ / 区民大会 / 練習試合 / その他
 - 試合結果ページに「🏆 区民大会公式 試合結果ページ（横浜南区野球協会）↗」 外部リンク
 - **中止は赤い打消し線 + 赤字「中止」**: `schedule.status = '中止'` / `results.result = '中止'` の行は題名（vs 相手 / 種別）に赤い打消し線を引き、直後に赤字で「中止」を添える（予定一覧 / 予定詳細 / 出欠一覧 / 戦績一覧 / 戦績詳細 / home の戦績カード）。home の月カレンダーはセル幅が狭く文字を足すと相手名が切れるため、チップ自体を赤系に変える。右上の「中止」バッジは併置のまま残し、色以外の手がかりも確保。中止は戦績集計から除外
@@ -365,7 +365,7 @@ Storage buckets:
 | **Member Request PR** (public-cron) | Google Form (GAS → Vercel proxy → `repository_dispatch` to yokohama-funnies-public-cron) | GitHub App installation token を mint → private repo の `config/members.yml` を編集する PR を自動作成、admin へ Gmail 通知 |
 | **Sync Member Roles** (public-cron) | `*/5 * * * *` polling | App token で `config/members.yml`（既存ロスター）+ `config/members/<uid>.yml`（申請ごと 1 ファイル）を fetch → union → Supabase `user_roles` に diff 同期（idempotent、昇格検出時のみ GAS Gmail で承認通知）。mass-demote safety guard で誤設定時の会員一斉降格を防止 |
 | **Health Check** (public-cron, monitoring) | Hourly | 4 probe（Vercel proxy dispatch / health-check-ack freshness / GAS gas-heartbeat freshness / feedback Web App secret-match。 Google 側 transient 誤発報回避に **3 回リトライ + 単発失敗は warning のみ・secret 不一致のみ hard fail**）、異常時 admin に Gmail |
-| **Weather Warm / Schedule Fire** (public-cron) | `*/30` + 週次 | `/weather` の ISR cache を warm + 週次で `/schedule` SSR fire（Supabase auto-pause 回避、anon key 不要）。2026-11-10 から `/schedule` は未ログインに案内だけを出すため、この fire は DB に届かない（毎日の同期・写真の物理削除が DB を使う） |
+| **Weather Warm / Schedule Fire** (public-cron) | `*/30` + 週次 | `/weather` の ISR cache を warm + 週次で `/schedule` SSR fire（Supabase auto-pause 回避、anon key 不要）。2026-11-10 から `/schedule` は未ログインをログイン画面へ送るため、この fire は DB に届かない（毎日の同期・写真の物理削除が DB を使う） |
 | **Update README Stats** (public-cron) | Monthly (1st, JST 09:00) / manual | ファイル数・LOC・ページ数・table 数等を算出し `<!--stat:KEY-->` マーカーを private + docs README に同期 |
 
 All workflows use **minimal `permissions`** (principle of least privilege).
