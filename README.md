@@ -119,7 +119,7 @@ Middleware + RLS の2層で認可を実施。全操作を権限に応じて制�
 |-------|------|--------|
 | 1 | Guest | Public pages |
 | 2 | `viewer` | Logged in, awaiting approval |
-| 3 | `member` | + Member-only pages (選手成績 / 出欠 / オーダー表 / 会員専用投稿 / スコアブック閲覧) |
+| 3 | `member` | + Member-only pages (選手成績 / 出欠 / オーダー表 / 会員専用投稿 / スコアブック閲覧) + 予定（試合・練習・懇親会） |
 | 4 | `editor` | + Content CRUD (8 edit pages + inline editing) |
 | 5 | `admin` | + User management, audit logs, trash |
 
@@ -224,6 +224,7 @@ Google Form submit (氏名 + 背番号)
 
 - **Results**: 公式戦 ワイワイリーグ / 公式戦 区民大会 / 練習試合 / その他
 - **Schedule**: 上記 + 練習 / 飲み会・懇親会
+- **予定は会員以上だけ**（2026-11-10）: 会員以外の人（未ログイン・承認待ち）に見せるのは新着情報（お知らせ・試合結果）・試合結果・戦績・ギャラリーまで。RLS `schedule_read` と予定を読む 3 つの view を `is_member_or_above()` で絞り、予定の一覧・詳細は会員以外に「会員限定です」の案内とログインへの導線を出す（noindex・サイトマップからも外す）。予定に紐付く写真は、取り消していない・懇親会でない予定のものだけ誰でも見られる（所有者権限の関数 `schedule_photo_visible` で予定の種別だけを判定）
 - **Result filter** (`/results`): すべて / ワイワイ / 区民大会 / 練習試合 / その他
 - 試合結果ページに「🏆 区民大会公式 試合結果ページ（横浜南区野球協会）↗」 外部リンク
 - **中止は赤い打消し線 + 赤字「中止」**: `schedule.status = '中止'` / `results.result = '中止'` の行は題名（vs 相手 / 種別）に赤い打消し線を引き、直後に赤字で「中止」を添える（予定一覧 / 予定詳細 / 出欠一覧 / 戦績一覧 / 戦績詳細 / home の戦績カード）。home の月カレンダーはセル幅が狭く文字を足すと相手名が切れるため、チップ自体を赤系に変える。右上の「中止」バッジは併置のまま残し、色以外の手がかりも確保。中止は戦績集計から除外
@@ -492,6 +493,6 @@ Admin
 
 ## Top Page Composition
 
-Hero → トップ通知バー (最新の新着情報1件、押下で #news へジャンプ) → CONTENTS ナビバンド (5 色 card-style + 横スライド snap) → 横浜スタジアム 3 日天気 (M/D + 曜日 + 降水% + 累計 N.Nmm + 雨強度別アイコン、クリックで /weather に遷移) → チームの一言 → № 01 ABOUT US → № 02 MOMENTS (写真) → № 03 NEWS (お知らせ + 監督メッセージ + オーダー表 + 試合予定 + 試合結果を *_news view で合流。お知らせ行は複製しない) → № 04 UP NEXT (Google Calendar 風 月間ビュー) → № 05 RECORD → № 06 ROSTER (公開選手名簿)
+Hero → トップ通知バー (最新の新着情報1件、押下で #news へジャンプ) → CONTENTS ナビバンド (5 色 card-style + 横スライド snap) → 横浜スタジアム 3 日天気 (M/D + 曜日 + 降水% + 累計 N.Nmm + 雨強度別アイコン、クリックで /weather に遷移) → チームの一言 → № 01 ABOUT US → № 02 MOMENTS (写真) → № 03 NEWS (お知らせ + 監督メッセージ + オーダー表 + 試合予定 + 試合結果を *_news view で合流。お知らせ行は複製しない) → № 04 UP NEXT (Google Calendar 風 月間ビュー・会員だけ) → № 05 RECORD → № 06 ROSTER (公開選手名簿)
 
 なお試合予定 (一覧・詳細) には試合当日の天気を「試合日」ラベル付きで表示し、試合の 16 日前から出る (Open-Meteo 無料枠上限)。会場座標は球場マスタ (`lib/venues.ts`、本拠地の清水ヶ丘公園を含む) で解決する。
