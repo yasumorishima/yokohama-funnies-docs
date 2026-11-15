@@ -10,7 +10,7 @@
 
 | 直接アクセス | リンク経由 | 検索 | その他 | SNS | スマホから |
 |---:|---:|---:|---:|---:|---:|
-| 67% | 32% | 1%未満 | 1%未満 | 0% | 96% |
+| 64% | 35% | 1% | 1%未満 | 0% | 97% |
 
 <sub>直近30日の割合。参照元は訪問（セッション）ごと、スマホは閲覧ごとに数えています。</sub>
 
@@ -18,7 +18,7 @@
 
 <picture><source media="(prefers-color-scheme: dark)" srcset="insights/channels-monthly-dark.svg"><img src="insights/channels-monthly-light.svg" alt="月別の参照元の割合" width="100%"></picture>
 
-<sub>最終更新 2026-11-10（JST）・Google Analytics 4 の集計（サイトの [アクセス解析ページ](https://yokohama-funnies.vercel.app/insights) と同じデータの参照元を 5 つにまとめたもの）を GitHub Actions が毎日取得。</sub>
+<sub>最終更新 2026-11-15（JST）・Google Analytics 4 の集計（サイトの [アクセス解析ページ](https://yokohama-funnies.vercel.app/insights) と同じデータの参照元を 5 つにまとめたもの）を GitHub Actions が毎日取得。</sub>
 
 <!-- insights-end -->
 
@@ -366,7 +366,7 @@ Storage buckets:
 | **Member Request PR** (public-cron) | Google Form (GAS → Vercel proxy → `repository_dispatch` to yokohama-funnies-public-cron) | GitHub App installation token を mint → private repo の `config/members.yml` を編集する PR を自動作成、admin へ Gmail 通知 |
 | **Sync Member Roles** (public-cron) | `*/5 * * * *` polling | App token で `config/members.yml`（既存ロスター）+ `config/members/<uid>.yml`（申請ごと 1 ファイル）を fetch → union → Supabase `user_roles` に diff 同期（idempotent、昇格検出時のみ GAS Gmail で承認通知）。mass-demote safety guard で誤設定時の会員一斉降格を防止 |
 | **Health Check** (public-cron, monitoring) | Hourly | 4 probe（Vercel proxy dispatch / health-check-ack freshness / GAS gas-heartbeat freshness / feedback Web App secret-match。 Google 側 transient 誤発報回避に **3 回リトライ + 単発失敗は warning のみ・secret 不一致のみ hard fail**）、異常時 admin に Gmail |
-| **Weather Warm / Schedule Fire** (public-cron) | `*/30` + 週次 | `/weather` の ISR cache を warm + 週次で `/schedule` SSR fire（Supabase auto-pause 回避、anon key 不要）。2026-11-10 から `/schedule` は未ログインをログイン画面へ送るため、この fire は DB に届かない（毎日の同期・写真の物理削除が DB を使う） |
+| **Weather Warm / Keep Alive** (public-cron) | `*/30` + 週次 | `/weather` の ISR cache を warm + 週次で `/results` を開いて SSR で DB を読ませる（Supabase auto-pause 回避、anon key 不要）。2026-11-10 に `/schedule` から変更（`/schedule` は会員限定になり、未ログインはログイン画面へ送られて DB に届かないため） |
 | **Update README Stats** (public-cron) | Monthly (1st, JST 09:00) / manual | ファイル数・LOC・ページ数・table 数等を算出し `<!--stat:KEY-->` マーカーを private + docs README に同期 |
 
 All workflows use **minimal `permissions`** (principle of least privilege).
