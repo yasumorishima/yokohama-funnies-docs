@@ -174,7 +174,7 @@ Google Form submit (氏名 + 背番号)
 - **Scorebook viewer**: private bucket `scorebooks/<game_date>/*` convention、admin client で list + 1h signed URL、member+ は試合詳細 `/results/[id]` で画像を inline 閲覧。editor は同 page で 90°/180° step 回転（sharp 経由 API `/api/scorebooks/rotate`）+ client upload UI（multi file / 10MB 上限）
 - **Auto-rotate on upload**: editor がアップした画像は Storage 直アップ後に `/api/scorebooks/normalize`（sharp）が EXIF 正規化＋縦向きなら 90° 回転で横向き（既存の 3300×2550 に統一）へ自動整正。既に横向きなら skip。撮影向きに依存せず常に横向きで保存される（手動回転は override として存置）
 - **Scorebook ingestion**: companion repo `baseball-scorebook-ocr`（private R&D）+ 既存スプレッドシートからの移行
-- **Stats page** `/members-only/stats`: 打撃 / 投手タブ + 年度フィルタ（全年 / 2025 / 2024）+ 大会フィルタ（全部 / ワイワイリーグ / 区民大会 / 練習試合。年度と掛け合わせ。大会の分からない 2024 のシーズン集計は大会で絞ると入らない）+ sortable headers。打撃は全選手表示（0 打席含む、休部は grayed-out）、投手は登板選手のみ。シーズンは試合ごとの `results.season`（空欄なら試合日の年）。**規定打席（チーム試合数×1）到達者の打率・OPS（投手は失点率・WHIP）をアクセント色で強調**。試合別データの無い年度（2024）は `season_aggregates_*` の通算値を per-game の年度とシームレスに合算
+- **Stats page** `/members-only/stats`: 打撃 / 投手タブ + 年度フィルタ（全年 / 2025 / 2024）+ 大会フィルタ（全部 / ワイワイリーグ / 区民大会 / 練習試合。年度と掛け合わせ。大会の分からない 2024 のシーズン集計は大会で絞ると入らない）+ sortable headers。打撃は全選手表示（0 打席含む、休部は grayed-out）、投手は登板選手のみ。シーズンは試合ごとの `results.season`（空欄なら試合日の年）。**規定打席（チーム試合数×1）到達者の打率・OPS（投手は失点率・WHIP）をアクセント色で強調**。打撃・投手それぞれに切り替えスイッチ 2 つ（2026-11-15・どちらも既定オフ・掛け合わせ可・オンで表示人数を出す）: 「規定打席／規定投球回 到達者だけ」と「50歳以上だけ」。50 歳以上は**各年の成績をその年の 12/31 時点の年齢で数え**、全年は 50 歳以上だった年の分だけを合計（年末の 50 歳以上の部の表彰用）。生年月日は誰も直接読めない表 `player_birthdates` に幅（正確な日か学年の範囲）で置き、会員の画面には所有者権限の関数 `players_age_50_plus(年度)` が返す選手 id だけを渡す（生年月日そのものは画面・通信に出ない・範囲の遅いほうで判定・年度は 2000〜来年に限る・未ログインは実行不可）。規定の基準は絞る前の全選手から数える。試合別データの無い年度（2024）は `season_aggregates_*` の通算値を per-game の年度とシームレスに合算
 
 ### Roster & Public ROSTER Section
 
@@ -186,6 +186,7 @@ Google Form submit (氏名 + 背番号)
 ### Attendance Management
 
 - 出欠回答ページ + 試合詳細ページ内の出欠 toggle（○/△/×、member 以上、集計と名簿表示）
+- **△（未定）は「いつ決まるか（回答予定日）」とコメントが必須**（2026-11-15）: 集計する人が目処を立てられるように。画面では日付とコメントを入れて「決定」で保存、DB でも `attendances.decide_by` と CHECK 制約（`NOT VALID`＝以後の書き込みだけを検査）で強制。全員の回答一覧に「M/D(曜) までに回答」を表示
 - **回答は承認済み会員（member 以上）のみ**: RLS `attendances_insert_self` / `attendances_update_self` が `(auth.uid() = user_id AND is_member_or_above()) OR is_editor_or_above()`。新規 Google ログインは `viewer`（承認待ち）で入るため、承認前は回答 UI を出さず「会員として承認されると回答できます」を表示。editor / admin は代理入力のため無条件。閲覧側 `attendances_read` も member 以上
 - **2026-09-01 (JST) から本格運用（自動切替）**: 基準日は `lib/utils.ts` の `ATTENDANCE_CUTOVER_JST` 1 箇所。①試合詳細の「出欠はサークルスクエアが本番です」案内は**試合日基準**（`isCircleSquarePrimaryFor(game_date)`）で、9 月以降の試合には最初から出さない ②出欠一覧の併用案内は一覧に 8 月までの試合が残っている間だけ表示 ③予定ページの「本格運用前（仮表示）」バッジは今日基準で 9/1 に消える。未ログイン時は「ログインして回答」ボタン（`/login?redirect=...`）
 - `attendances` table は `schedule_id + user_id` UNIQUE、集計 view `attendances_with_user`
@@ -332,7 +333,7 @@ Storage buckets:
 | `lineup_news` | Anon teaser of published lineups (schedule_id/opponent/game_date, starters/bench 除外, home 新着情報用) |
 | `manager_comment_news` | Anon teaser of manager comments (body/title 除外, home 新着情報用) |
 | `schedule_news` | Anon teaser of upcoming games (notes/created_by 除外, home 新着情報用) |
-| `results_news` | Anon teaser of game results (note/inning_scores 除外, home 新着情報用。新着には試合日が今年＝1〜2 月は直近 60 日も＝の試合だけ出す。過去の試合を直しても「試合結果更新」として湧かない) |
+| `results_news` | Anon teaser of game results (note/inning_scores 除外, home 新着情報用。新着には試合日が今年＝1〜2 月は直近 60 日も＝の試合だけ出す。過去の試合を直しても「試合結果更新」として湧かない。新着の試合結果には大会の短い色枠〈ワイワイ／区民大会／練習試合〉を付ける＝view に種別が無いので、出す結果の分だけ `results` から引く・2026-11-15) |
 | `*_with_author` | Content joined with author display name + `updated_by` |
 
 ### DB Functions & Triggers
